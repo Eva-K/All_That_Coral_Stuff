@@ -1,0 +1,212 @@
+---
+title: "CoralTypePrediction"
+author: "Eva Kovacs"
+date: "18/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## packages
+
+```{r what you need }
+install.packages("tidyverse")
+install.packages("janitor")
+install.packages("skimr")
+install.packages("stringr")
+install.packages("data.table")
+install.packages("ggthemes")
+install.packages("RColorBrewer")
+install.packages("gmodels")
+install.packages("dplyr")
+install.packages("plyr")
+
+
+library(tidyverse) # use install.packages("tidyverse") if receive an error message
+library(janitor) # use install.packages("janitor") if receive an error message
+library(skimr)  # use install.packages("skimr") if receive an error message
+library(stringr) # use install.packages("stringr") if receive an error message
+library(data.table)
+library(ggthemes)
+library(RColorBrewer)
+library(gmodels)
+library(dplyr)
+library(plyr)
+
+```
+
+
+# Set the number of significant digits to preserve
+
+```{r}
+
+# Set
+options(digits = 10)
+
+#Check
+options()
+
+```
+
+# Read in Files
+
+```{r}
+# Import file fom folder
+
+head(CCMR_pred)
+
+#  X1 Longitude Latitude pred.Bra pred.Mass pred.Plat
+#  <dbl>     <dbl>    <dbl>    <dbl>     <dbl>     <dbl>
+#1     1      146.    -17.8     36.2      64.4      5.06
+```
+
+# Rescale the values for each coral type (0-100)
+
+```{r}
+# Makea copy
+CCMR <- CCMR_pred
+
+# Change all negative prediction values to zero
+
+setDT(CCMR)
+for(j in grep('^pred', names(CCMR))){
+ set(CCMR, i= which(CCMR[[j]]<0), j= j, value=0)
+}
+
+## Re-scale
+
+# Calculate the SUM of the predicted coral types
+
+CCMR<- CCMR%>%
+  rowwise()%>%
+  mutate(sum = sum(pred.Bra, pred.Mass, pred.Plat))
+
+remove(CCMR_pred)
+
+# Rescale the values
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(Bra0100 = (100*(pred.Bra/sum)))
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(Mass0100 = (100*(pred.Mass/sum)))
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(Plat0100 = (100*(pred.Plat/sum)))
+
+CCMR<- CCMR%>%
+  rowwise()%>%
+  mutate(sum2 = sum(Bra0100, Mass0100, Plat0100))
+
+max(CCMR$sum2)
+min(CCMR$sum2)
+
+# Write to file
+
+CCMRScaled <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/CCMRScaled.csv")
+
+```
+
+# Calculate Dominant Coral Form (5%)
+
+```{r 5% domiance}
+CCMR <- CCMRScaled
+
+CCMR <- mutate(CCMR, B = Bra0100)
+CCMR <- mutate(CCMR, M = Mass0100)
+CCMR <- mutate(CCMR, P = Plat0100)
+
+#copy
+CCMR2 <- CCMR
+
+# recall
+CCMR <- CCMR2
+
+# calculate 5% dominance
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy5 = fifelse((((B - M) >= 5) & ((B - P) >= 5)), "Branching", 
+                          fifelse((((M - B) >= 5) & ((M - P) >= 5)), "Massive",
+                         fifelse((((P - B) >=5) & ((P - M) >=5)), "Plate",
+         
+                         fifelse(((B <5) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <5) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <5) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy5)
+
+
+# Write to file
+
+#RC_Mitch <- write.csv(RC_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/RC_Heron2018_DomBen.csv")
+
+
+```
+
+# 15% Dominance
+
+```{r 15% dominance}
+
+#copy
+CCMR3 <- CCMR
+
+# recall
+CCMR <- CCMR3
+
+# calculate 15% dominance
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy15 = fifelse((((B - M) >= 15) & ((B - P) >= 15)), "Branching", 
+                          fifelse((((M - B) >= 15) & ((M - P) >= 15)), "Massive",
+                         fifelse((((P - B) >=15) & ((P - M) >=15)), "Plate",
+         
+                         fifelse(((B <15) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <15) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <15) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy15)
+
+
+```
+
+# Just plain dominant
+
+```{r Dominant by value}
+
+#copy
+CCMR4 <- CCMR
+
+# recall
+CCMR <- CCMR4
+
+# calculate 15% dominance
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(Dominant = fifelse(((B > M) & (B > P)), "Branching",
+                            fifelse(((M > B)  & (M > P)), "Massive",
+                                     fifelse(((P > B) & (P > M)), "Plate","None"))))
+
+unique(CCMR$Dominant)
+
+```
+
+# Tidy and save
+
+```{r select rows and save}
+
+# select rows
+CCMR <- CCMR %>%
+  select("X1", "Longitude", "Latitude", "B":"Dominant")
+
+# Write to csv
+CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/CoralTypeMapping/CCMR_CT.csv")
+
+```
+

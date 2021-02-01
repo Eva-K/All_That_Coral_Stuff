@@ -66,25 +66,71 @@ FNGBR_ALL <- FNGBR_ALL %>% unite("ID", Region:id, remove = TRUE)
 FNGBR <- FNGBR_ALL %>%
   select("ID", "Longitude":"pred.Plat")
 
+# change column names
+FNGBR <- FNGBR_ALL %>%
+  rowwise()%>%
+  mutate(Bra = pred.Bra)
+FNGBR <- FNGBR %>%
+  rowwise()%>%
+  mutate(Mass = pred.Mass)
+FNGBR <- FNGBR %>%
+  rowwise()%>%
+  mutate(Pla = pred.Plat)
+FNGBR <- FNGBR %>%
+  select("ID":"Latitude", "Bra":"Pla")
+
 # write to CSV
 
-FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/FNGBR_ALL.csv")
+FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/FNGBR_ALL_simple.csv")
 
-Far <- FNGBR_ALL
+Far <- FNGBR_ALL_simple
 
-max(Far$pred.Bra)
-max(Far$pred.Mass)
-max(Far$pred.Plat)
+max(Far$Bra)
+max(Far$Mass)
+max(Far$Pla)
 
-min(Far$pred.Bra)
-min(Far$pred.Mass)
-min(Far$pred.Plat)
+min(Far$Bra)
+min(Far$Mass)
+min(Far$Pla)
 
 # Plot values
+# Separate into Coral type
+B <- Far %>% 
+  rowwise() %>%
+  mutate( Type = Bra)%>%
+  select("ID", "Type") 
+head(B)
 
-F_Dist <- Far %>%
-  ggplot(aes(x=X1, y=pred.Bra, colour="red" )) + geom_point()
+M <- Far %>% 
+  rowwise() %>%
+  mutate( Type = Mass)%>%
+  select("ID", "Type")
+head(M)
+
+P <- Far %>% 
+  rowwise() %>%
+  mutate( Type = Pla)%>%
+  select("ID", "Type")
+head(P)
+
+F_Dist <- 
+  ggplot(B, aes(x=ID, y=Type, colour="red" )) + geom_point()+
+  geom_point(data = M, colour = "blue")+
+  geom_point(data = P, colour = "green")
+
+
+ggsave("F_Dist.jpg", width = 22, height = 16, units = "cm", dpi = 300)
+
 print(F_Dist)
+```
+
+# Try a density plot
+
+```{r Density plots}
+
+ggplot(diamonds, aes(ID)) +
+  geom_density()
+
 
 ```
 

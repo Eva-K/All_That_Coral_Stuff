@@ -1,0 +1,90 @@
+---
+title: "WholeGBR"
+author: "Eva Kovacs"
+date: "01/02/2021"
+output: html_document
+---
+
+## packages
+
+```{r what you need }
+install.packages("tidyverse")
+install.packages("janitor")
+install.packages("skimr")
+install.packages("stringr")
+install.packages("data.table")
+install.packages("ggthemes")
+install.packages("RColorBrewer")
+install.packages("gmodels")
+install.packages("dplyr")
+install.packages("plyr")
+
+
+library(tidyverse) # use install.packages("tidyverse") if receive an error message
+library(janitor) # use install.packages("janitor") if receive an error message
+library(skimr)  # use install.packages("skimr") if receive an error message
+library(stringr) # use install.packages("stringr") if receive an error message
+library(data.table)
+library(ggthemes)
+library(RColorBrewer)
+library(gmodels)
+library(dplyr)
+library(plyr)
+
+```
+
+
+# Set the number of significant digits to preserve
+
+```{r}
+
+# Set
+options(digits = 10)
+
+#Check
+options()
+
+```
+
+# Create unique row numbers
+
+```{r Creat unique row numbers}
+# Read CSV files from folder
+
+# Append regions
+FNGBR_ALL <- dplyr::bind_rows(FNGBR_pred1,FNGBR_pred2)
+
+FNGBR_ALL <- na.omit(FNGBR_ALL)
+
+FNGBR_ALL <- FNGBR_ALL %>% dplyr::mutate(id = row_number())
+
+# Make ID FNGBR specific
+FNGBR_ALL <- FNGBR_ALL %>% dplyr::mutate(Region = as.character("FNGBR_"))
+
+FNGBR_ALL <- FNGBR_ALL %>% unite("ID", Region:id, remove = TRUE)
+
+FNGBR <- FNGBR_ALL %>%
+  select("ID", "Longitude":"pred.Plat")
+
+# write to CSV
+
+FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/FNGBR_ALL.csv")
+
+Far <- FNGBR_ALL
+
+max(Far$pred.Bra)
+max(Far$pred.Mass)
+max(Far$pred.Plat)
+
+min(Far$pred.Bra)
+min(Far$pred.Mass)
+min(Far$pred.Plat)
+
+# Plot values
+
+F_Dist <- Far %>%
+  ggplot(aes(x=X1, y=pred.Bra, colour="red" )) + geom_point()
+print(F_Dist)
+
+```
+

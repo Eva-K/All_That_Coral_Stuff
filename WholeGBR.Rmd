@@ -113,10 +113,15 @@ P <- Far %>%
   select("ID", "Type")
 head(P)
 
-F_Dist <- 
-  ggplot(B, aes(x=ID, y=Type, colour="red" )) + geom_point()+
-  geom_point(data = M, colour = "blue")+
-  geom_point(data = P, colour = "green")
+
+F_DistB <- ggplot(B, aes(ID)) +
+  geom_density()
+print(F_DistB)
+
+#F_Dist <- 
+ # ggplot(B, aes(x=ID, y=Type, colour="red" )) + geom_point()+
+  #geom_point(data = M, colour = "blue")+
+  #geom_point(data = P, colour = "green")
 
 
 ggsave("F_Dist.jpg", width = 22, height = 16, units = "cm", dpi = 300)

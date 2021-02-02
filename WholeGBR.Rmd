@@ -55,6 +55,27 @@ options()
 # Append regions
 FNGBR_ALL <- dplyr::bind_rows(FNGBR_pred1,FNGBR_pred2)
 
+####### To extract validation points
+FNGBR_Waves_val<- mutate(FNGBR_Waves_val, Latitude=P_Lat)
+FNGBR_Waves_val<- mutate(FNGBR_Waves_val, Longitude=P_Long)
+
+FNGBR_Val <- FNGBR_Waves_val%>%
+  select("Latitude":"Longitude")
+
+# try to extract predictions for the val points - Ha Ha
+# This shouldn't work as they weren't used for the modelling
+
+#FNGBR_Valpreds <- merge(FNGBR_Val, FNGBR_ALL_simple, by=c("Longitude","Latitude"),all.x=TRUE, all.y=FALSE) 
+
+FNGBR_Valpreds <- left_join(FNGBR_Val, FNGBR_ALL_simple, by = "Longitude")
+
+FNGBR_Valpreds <-mutate(FNGBR_Valpreds, "Latitude" = Latitude.x)
+
+FNGBR_Valpreds <- left_join(FNGBR_Valpreds, FNGBR_ALL_simple)
+
+FNGBR_Valpreds <-na.omit(FNGBR_Valpreds)
+#######
+
 FNGBR_ALL <- na.omit(FNGBR_ALL)
 
 FNGBR_ALL <- FNGBR_ALL %>% dplyr::mutate(id = row_number())
@@ -71,7 +92,7 @@ FNGBR <- FNGBR_ALL %>%
 
 FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/FNGBR_ALL_simple.csv")
 
-Far <- FNGBR
+Far <- FNGBR_ALL_simple
 
 max(Far$pred.Bra)
 max(Far$pred.Mass)

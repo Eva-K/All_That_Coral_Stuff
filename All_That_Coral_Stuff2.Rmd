@@ -209,4 +209,110 @@ CCMR <- CCMR %>%
 CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/CoralTypeMapping/CCMR_CT.csv")
 
 ```
+# ##################
+# ################## 
+# Validation Points
+
+# To extract any val points from the training points
+
+```{r find the val points!}
+
+####### To extract validation points
+CCMR_Waves_val<- mutate(CCMR_Waves_val, Latitude=P_Lat)
+CCMR_Waves_val<- mutate(CCMR_Waves_val, Longitude=P_Long)
+
+CCMR_Val <- CCMR_Waves_val%>%
+  select("Latitude":"Longitude")
+
+# try to extract predictions for the val points 
+# This shouldn't work as they weren't used for the modeling
+# But some are pairing so delete those points
+
+#CCMR_Valpreds <- merge(CCMR_Val, CCMR_simple, by=c("Longitude","Latitude"),all.x=TRUE, all.y=FALSE) 
+
+CCMR_Valpreds <- left_join(CCMR_Val, CCMR_simple, by =c( "Longitude", "Latitude"))
+
+# No CCMR val are joining - Yay
+
+#######
+
+```
+
+# Create dominance for Validation
+
+```{r Dominance val points}
+
+CCMR_Waves_val <- mutate(CCMR_Waves_val, B = BrPerTot)
+CCMR_Waves_val <- mutate(CCMR_Waves_val, M = MaPerTot)
+CCMR_Waves_val <- mutate(CCMR_Waves_val, P = PPerTot)
+
+#copy
+CCMR <- CCMR_Waves_val%>%
+  select("PeriPt", "Latitude":"P")
+
+```
+
+# Calculate Dominances
+
+```{r 5%}
+
+# calculate 5% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy5 = fifelse((((B - M) >= 5) & ((B - P) >= 5)), "Branching", 
+                          fifelse((((M - B) >= 5) & ((M - P) >= 5)), "Massive",
+                         fifelse((((P - B) >=5) & ((P - M) >=5)), "Plate",
+         
+                         fifelse(((B <5) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <5) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <5) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy5)
+```
+
+
+```{r 15%}
+
+# calculate 15% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy15 = fifelse((((B - M) >= 15) & ((B - P) >= 15)), "Branching", 
+                          fifelse((((M - B) >= 15) & ((M - P) >= 15)), "Massive",
+                         fifelse((((P - B) >=15) & ((P - M) >=15)), "Plate",
+         
+                         fifelse(((B <15) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <15) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <15) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy15)
+```
+
+
+```{r 30%}
+
+# calculate 30% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy30 = fifelse((((B - M) >= 30) & ((B - P) >= 30)), "Branching", 
+                          fifelse((((M - B) >= 30) & ((M - P) >= 30)), "Massive",
+                         fifelse((((P - B) >=30) & ((P - M) >=30)), "Plate",
+         
+                         fifelse(((B <30) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <30) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <30) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy30)
+```
+
+# Save
+
+```{r}
+CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/CCMR_ValPts20210202.csv")
+```
 

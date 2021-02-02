@@ -55,27 +55,6 @@ options()
 # Append regions
 FNGBR_ALL <- dplyr::bind_rows(FNGBR_pred1,FNGBR_pred2)
 
-####### To extract validation points
-FNGBR_Waves_val<- mutate(FNGBR_Waves_val, Latitude=P_Lat)
-FNGBR_Waves_val<- mutate(FNGBR_Waves_val, Longitude=P_Long)
-
-FNGBR_Val <- FNGBR_Waves_val%>%
-  select("Latitude":"Longitude")
-
-# try to extract predictions for the val points - Ha Ha
-# This shouldn't work as they weren't used for the modelling
-
-#FNGBR_Valpreds <- merge(FNGBR_Val, FNGBR_ALL_simple, by=c("Longitude","Latitude"),all.x=TRUE, all.y=FALSE) 
-
-FNGBR_Valpreds <- left_join(FNGBR_Val, FNGBR_ALL_simple, by = "Longitude")
-
-FNGBR_Valpreds <-mutate(FNGBR_Valpreds, "Latitude" = Latitude.x)
-
-FNGBR_Valpreds <- left_join(FNGBR_Valpreds, FNGBR_ALL_simple)
-
-FNGBR_Valpreds <-na.omit(FNGBR_Valpreds)
-#######
-
 FNGBR_ALL <- na.omit(FNGBR_ALL)
 
 FNGBR_ALL <- FNGBR_ALL %>% dplyr::mutate(id = row_number())
@@ -183,7 +162,7 @@ MKY_ALL <- MKY_ALL %>% dplyr::mutate(Region = as.character("MKY_"))
 MKY_ALL <- MKY_ALL %>% unite("ID", Region:id, remove = TRUE)
 
 MKY <- MKY_ALL %>%
-  select("ID", "pred.Bra":"pred.Plat")
+  select("ID", "Longitude":"pred.Plat")
 
 # write to CSV
 
@@ -233,7 +212,7 @@ TSV_ALL <- TSV_ALL %>% dplyr::mutate(Region = as.character("TSV_"))
 TSV_ALL <- TSV_ALL %>% unite("ID", Region:id, remove = TRUE)
 
 TSV <- TSV_ALL %>%
-  select("ID", "pred.Bra":"pred.Plat")
+  select("ID", "Longitude":"pred.Plat")
 
 # write to CSV
 
@@ -277,4 +256,3 @@ ggsave("Plot.jpg", width = 22, height = 16, units = "cm", dpi = 300)
 
 
 ```
-

@@ -46,6 +46,7 @@ options()
 
 ```
 
+# FNGBR
 # Create unique row numbers
 
 ```{r Creat unique row numbers}
@@ -66,75 +67,192 @@ FNGBR_ALL <- FNGBR_ALL %>% unite("ID", Region:id, remove = TRUE)
 FNGBR <- FNGBR_ALL %>%
   select("ID", "Longitude":"pred.Plat")
 
-# change column names
-FNGBR <- FNGBR_ALL %>%
-  rowwise()%>%
-  mutate(Bra = pred.Bra)
-FNGBR <- FNGBR %>%
-  rowwise()%>%
-  mutate(Mass = pred.Mass)
-FNGBR <- FNGBR %>%
-  rowwise()%>%
-  mutate(Pla = pred.Plat)
-FNGBR <- FNGBR %>%
-  select("ID":"Latitude", "Bra":"Pla")
-
 # write to CSV
 
 FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/FNGBR_ALL_simple.csv")
 
-Far <- FNGBR_ALL_simple
+Far <- FNGBR
 
-max(Far$Bra)
-max(Far$Mass)
-max(Far$Pla)
+max(Far$pred.Bra)
+max(Far$pred.Mass)
+max(Far$pred.Plat)
 
-min(Far$Bra)
-min(Far$Mass)
-min(Far$Pla)
+min(Far$pred.Bra)
+min(Far$pred.Mass)
+min(Far$pred.Plat)
 
-# Plot values
-# Separate into Coral type
-B <- Far %>% 
-  rowwise() %>%
-  mutate( Type = Bra)%>%
-  select("ID", "Type") 
-head(B)
+Far %>%
+  summarise(
+          
+          mean_B = mean(pred.Bra, na.rm = TRUE),
+          mean_M = mean(pred.Mass, na.rm = TRUE),
+          mean_P = mean(pred.Plat, na.rm = TRUE)
+          #sd = sd(pred.Bra),
+          #sd = sd(pred.Mass),
+          #sd = sd(pred.Plat)
+          )
 
-M <- Far %>% 
-  rowwise() %>%
-  mutate( Type = Mass)%>%
-  select("ID", "Type")
-head(M)
-
-P <- Far %>% 
-  rowwise() %>%
-  mutate( Type = Pla)%>%
-  select("ID", "Type")
-head(P)
-
-
-F_DistB <- ggplot(B, aes(ID)) +
-  geom_density()
-print(F_DistB)
-
-#F_Dist <- 
- # ggplot(B, aes(x=ID, y=Type, colour="red" )) + geom_point()+
-  #geom_point(data = M, colour = "blue")+
-  #geom_point(data = P, colour = "green")
-
-
-ggsave("F_Dist.jpg", width = 22, height = 16, units = "cm", dpi = 300)
-
-print(F_Dist)
 ```
+
+# ##############
+# CCMR
+# Create unique row numbers
+
+```{r Creat unique row numbers}
+# Read CSV files from folder
+
+# Append regions
+
+CCMR <- na.omit(CCMR_pred)
+
+CCMR <- CCMR %>% dplyr::mutate(id = row_number())
+
+# Make ID CCMR specific
+CCMR <- CCMR %>% dplyr::mutate(Region = as.character("CCMR_"))
+
+CCMR <- CCMR %>% unite("ID", Region:id, remove = TRUE)
+
+CCMRa <- CCMR %>%
+  select("ID", "pred.Bra":"pred.Plat")
+
+# write to CSV
+
+CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/CCMR_simple.csv")
+
+CC <- CCMRa
+
+max(CC$pred.Bra)
+max(CC$pred.Mass)
+max(CC$pred.Plat)
+
+min(CC$pred.Bra)
+min(CC$pred.Mass)
+min(CC$pred.Plat)
+
+CC %>%
+  summarise(
+          
+          #mean_B = mean(pred.Bra, na.rm = TRUE),
+          #mean_M = mean(pred.Mass, na.rm = TRUE),
+          #mean_P = mean(pred.Plat, na.rm = TRUE),
+          sd = sd(pred.Bra),
+          sd = sd(pred.Mass),
+          sd = sd(pred.Plat)
+          )
+
+```
+
+# ##############
+# MKY
+# Create unique row numbers
+
+```{r Creat unique row numbers}
+# Read CSV files from folder
+
+# Append regions
+MKY_ALL <- dplyr::bind_rows(MKY_preda, MKY_predb,MKY_predc,MKY_predd)
+
+MKY_ALL <- na.omit(MKY_ALL)
+
+MKY_ALL <- MKY_ALL %>% dplyr::mutate(id = row_number())
+
+# Make ID MKY specific
+MKY_ALL <- MKY_ALL %>% dplyr::mutate(Region = as.character("MKY_"))
+
+MKY_ALL <- MKY_ALL %>% unite("ID", Region:id, remove = TRUE)
+
+MKY <- MKY_ALL %>%
+  select("ID", "pred.Bra":"pred.Plat")
+
+# write to CSV
+
+MKY <- write.csv(MKY, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/MKY_simple.csv")
+
+MKY<- MKY_simple
+
+max(MKY$pred.Bra)
+max(MKY$pred.Mass)
+max(MKY$pred.Plat)
+
+min(MKY$pred.Bra)
+min(MKY$pred.Mass)
+min(MKY$pred.Plat)
+
+MKY %>%
+  summarise(
+          
+          mean_B = mean(pred.Bra, na.rm = TRUE),
+          mean_M = mean(pred.Mass, na.rm = TRUE),
+          mean_P = mean(pred.Plat, na.rm = TRUE),
+          sd = sd(pred.Bra),
+          sd = sd(pred.Mass),
+          sd = sd(pred.Plat)
+          )
+
+```
+
+
+# ##############
+# TSV
+# Create unique row numbers
+
+```{r Creat unique row numbers}
+# Read CSV files from folder
+
+# Append regions
+TSV_ALL <- dplyr::bind_rows(TSV_predda, TSV_preddb)
+
+TSV_ALL <- na.omit(TSV_ALL)
+
+TSV_ALL <- TSV_ALL %>% dplyr::mutate(id = row_number())
+
+# Make ID TSV specific
+TSV_ALL <- TSV_ALL %>% dplyr::mutate(Region = as.character("TSV_"))
+
+TSV_ALL <- TSV_ALL %>% unite("ID", Region:id, remove = TRUE)
+
+TSV <- TSV_ALL %>%
+  select("ID", "pred.Bra":"pred.Plat")
+
+# write to CSV
+
+TSV <- write.csv(TSV, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/TSV_simple.csv")
+
+
+max(TSV$pred.Bra)
+max(TSV$pred.Mass)
+max(TSV$pred.Plat)
+
+min(TSV$pred.Bra)
+min(TSV$pred.Mass)
+min(TSV$pred.Plat)
+
+TSV %>%
+  summarise(
+          
+          #mean_B = mean(pred.Bra, na.rm = TRUE),
+          #mean_M = mean(pred.Mass, na.rm = TRUE),
+          #mean_P = mean(pred.Plat, na.rm = TRUE),
+          sd = sd(pred.Bra),
+          sd = sd(pred.Mass),
+          sd = sd(pred.Plat)
+          )
+
+```
+
+
+
+
+
+
+```{r}
 
 # Try a density plot
 
-```{r Density plots}
-
-ggplot(diamonds, aes(ID)) +
+Plot <- ggplot(CCb, aes(x=ID)) +
   geom_density()
+
+ggsave("Plot.jpg", width = 22, height = 16, units = "cm", dpi = 300)
 
 
 ```

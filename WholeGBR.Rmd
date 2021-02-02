@@ -141,6 +141,112 @@ CC %>%
           )
 
 ```
+# ##################
+# ################## 
+# Validation Points
+
+# To extract any val points from the training points
+
+```{r find the val points!}
+
+####### To extract validation points
+CCMR_Waves_val<- mutate(CCMR_Waves_val, Latitude=P_Lat)
+CCMR_Waves_val<- mutate(CCMR_Waves_val, Longitude=P_Long)
+
+CCMR_Val <- CCMR_Waves_val%>%
+  select("Latitude":"Longitude")
+
+# try to extract predictions for the val points 
+# This shouldn't work as they weren't used for the modeling
+# But some are pairing so delete those points
+
+#CCMR_Valpreds <- merge(CCMR_Val, CCMR_simple, by=c("Longitude","Latitude"),all.x=TRUE, all.y=FALSE) 
+
+CCMR_Valpreds <- left_join(CCMR_Val, CCMR_simple, by =c( "Longitude", "Latitude"))
+
+# No CCMR val are joining - Yay
+
+#######
+
+```
+
+# Create dominance for Validation
+
+```{r Dominance val points}
+
+CCMR_Waves_val <- mutate(CCMR_Waves_val, B = BrPerTot)
+CCMR_Waves_val <- mutate(CCMR_Waves_val, M = MaPerTot)
+CCMR_Waves_val <- mutate(CCMR_Waves_val, P = PPerTot)
+
+#copy
+CCMR <- CCMR_Waves_val%>%
+  select("PeriPt", "Latitude":"P")
+
+```
+
+# Calculate Dominances
+
+```{r 5%}
+
+# calculate 5% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy5 = fifelse((((B - M) >= 5) & ((B - P) >= 5)), "Branching", 
+                          fifelse((((M - B) >= 5) & ((M - P) >= 5)), "Massive",
+                         fifelse((((P - B) >=5) & ((P - M) >=5)), "Plate",
+         
+                         fifelse(((B <5) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <5) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <5) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy5)
+```
+
+
+```{r 15%}
+
+# calculate 15% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy15 = fifelse((((B - M) >= 15) & ((B - P) >= 15)), "Branching", 
+                          fifelse((((M - B) >= 15) & ((M - P) >= 15)), "Massive",
+                         fifelse((((P - B) >=15) & ((P - M) >=15)), "Plate",
+         
+                         fifelse(((B <15) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <15) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <15) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy15)
+```
+
+
+```{r 30%}
+
+# calculate 30% dominance
+
+CCMR <- CCMR%>%
+  rowwise()%>%
+  mutate(DomBy30 = fifelse((((B - M) >= 30) & ((B - P) >= 30)), "Branching", 
+                          fifelse((((M - B) >= 30) & ((M - P) >= 30)), "Massive",
+                         fifelse((((P - B) >=30) & ((P - M) >=30)), "Plate",
+         
+                         fifelse(((B <30) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <30) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <30) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(CCMR$DomBy30)
+```
+
+# Save
+
+```{r}
+CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/CCMR_ValPts20210202.csv")
+```
 
 # ##############
 # MKY
@@ -189,6 +295,111 @@ MKY %>%
           sd = sd(pred.Plat)
           )
 
+```
+
+# ##################
+# ################## 
+# Validation Points
+
+# To extract any val points from the training points
+
+```{r find the val points!}
+
+####### To extract validation points
+MKY_Waves_val<- mutate(MKY_Waves_val, Latitude=P_Lat)
+MKY_Waves_val<- mutate(MKY_Waves_val, Longitude=P_Long)
+
+MKY_Val <- MKY_Waves_val%>%
+  select("PeriPt", "Latitude":"Longitude","BrPerTot":"PPerTot")
+
+# try to extract predictions for the val points 
+# This shouldn't work as they weren't used for the modeling
+# But some are pairing so delete those points
+
+# return rows from x where there are not matching values in y
+MKY_Valpreds <- anti_join(MKY_Val, MKY_simple, by =c( "Longitude", "Latitude"))
+
+#######
+
+```
+
+# Create dominance for Validation
+
+```{r Dominance val points}
+
+MKY_Valpreds <- mutate(MKY_Valpreds, B = BrPerTot)
+MKY_Valpreds <- mutate(MKY_Valpreds, M = MaPerTot)
+MKY_Valpreds <- mutate(MKY_Valpreds, P = PPerTot)
+
+#copy
+MKY <- MKY_Valpreds%>%
+  select("PeriPt":"Longitude", "B":"P")
+
+```
+
+# Calculate Dominances
+
+```{r 5%}
+
+# calculate 5% dominance
+
+MKY <- MKY%>%
+  rowwise()%>%
+  mutate(DomBy5 = fifelse((((B - M) >= 5) & ((B - P) >= 5)), "Branching", 
+                          fifelse((((M - B) >= 5) & ((M - P) >= 5)), "Massive",
+                         fifelse((((P - B) >=5) & ((P - M) >=5)), "Plate",
+         
+                         fifelse(((B <5) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <5) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <5) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(MKY$DomBy5)
+```
+
+
+```{r 15%}
+
+# calculate 15% dominance
+
+MKY <- MKY%>%
+  rowwise()%>%
+  mutate(DomBy15 = fifelse((((B - M) >= 15) & ((B - P) >= 15)), "Branching", 
+                          fifelse((((M - B) >= 15) & ((M - P) >= 15)), "Massive",
+                         fifelse((((P - B) >=15) & ((P - M) >=15)), "Plate",
+         
+                         fifelse(((B <15) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <15) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <15) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(MKY$DomBy15)
+```
+
+
+```{r 30%}
+
+# calculate 30% dominance
+
+MKY <- MKY%>%
+  rowwise()%>%
+  mutate(DomBy30 = fifelse((((B - M) >= 30) & ((B - P) >= 30)), "Branching", 
+                          fifelse((((M - B) >= 30) & ((M - P) >= 30)), "Massive",
+                         fifelse((((P - B) >=30) & ((P - M) >=30)), "Plate",
+         
+                         fifelse(((B <30) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <30) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <30) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(MKY$DomBy30)
+
+```
+
+# Save
+
+```{r}
+MKY <- write.csv(MKY, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/ForValidation/MKY_ValPts20210202.csv")
 ```
 
 
@@ -241,18 +452,110 @@ TSV %>%
 ```
 
 
+# ##################
+# ################## 
+# Validation Points
 
+# To extract any val points from the training points
 
+```{r find the val points!}
 
+####### To extract validation points
+TSV_Waves_val<- mutate(TSV_Waves_val, Latitude=P_Lat)
+TSV_Waves_val<- mutate(TSV_Waves_val, Longitude=P_Long)
 
-```{r}
+TSV_Val <- TSV_Waves_val%>%
+  select("PeriPt", "Latitude":"Longitude","BrPerTot":"PPerTot")
 
-# Try a density plot
+# try to extract predictions for the val points 
+# This shouldn't work as they weren't used for the modeling
+# But some are pairing so delete those points
 
-Plot <- ggplot(CCb, aes(x=ID)) +
-  geom_density()
+#TSV_Valpreds <- merge(TSV_Val, TSV_simple, by=c("Longitude","Latitude"),all.x=TRUE, all.y=FALSE) 
 
-ggsave("Plot.jpg", width = 22, height = 16, units = "cm", dpi = 300)
+# return rows from x where there are not matching values in y
+TSV_Valpreds <- anti_join(TSV_Val, TSV_simple, by =c( "Longitude", "Latitude"))
 
+#######
 
 ```
+
+# Create dominance for Validation
+
+```{r Dominance val points}
+
+TSV_Valpreds <- mutate(TSV_Valpreds, B = BrPerTot)
+TSV_Valpreds <- mutate(TSV_Valpreds, M = MaPerTot)
+TSV_Valpreds <- mutate(TSV_Valpreds, P = PPerTot)
+
+#copy
+TSV <- TSV_Valpreds%>%
+  select("PeriPt":"Longitude", "B":"P")
+
+```
+
+# Calculate Dominances
+
+```{r 5%}
+
+# calculate 5% dominance
+
+TSV <- TSV%>%
+  rowwise()%>%
+  mutate(DomBy5 = fifelse((((B - M) >= 5) & ((B - P) >= 5)), "Branching", 
+                          fifelse((((M - B) >= 5) & ((M - P) >= 5)), "Massive",
+                         fifelse((((P - B) >=5) & ((P - M) >=5)), "Plate",
+         
+                         fifelse(((B <5) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <5) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <5) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(TSV$DomBy5)
+```
+
+
+```{r 15%}
+
+# calculate 15% dominance
+
+TSV <- TSV%>%
+  rowwise()%>%
+  mutate(DomBy15 = fifelse((((B - M) >= 15) & ((B - P) >= 15)), "Branching", 
+                          fifelse((((M - B) >= 15) & ((M - P) >= 15)), "Massive",
+                         fifelse((((P - B) >=15) & ((P - M) >=15)), "Plate",
+         
+                         fifelse(((B <15) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <15) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <15) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(TSV$DomBy15)
+```
+
+
+```{r 30%}
+
+# calculate 30% dominance
+
+TSV <- TSV%>%
+  rowwise()%>%
+  mutate(DomBy30 = fifelse((((B - M) >= 30) & ((B - P) >= 30)), "Branching", 
+                          fifelse((((M - B) >= 30) & ((M - P) >= 30)), "Massive",
+                         fifelse((((P - B) >=30) & ((P - M) >=30)), "Plate",
+         
+                         fifelse(((B <30) & (M == 0) & (P == 0)), "Branching",
+                         fifelse(((M <30) & (B == 0) & (P == 0)), "Massive",
+                         fifelse(((P <30) & (M == 0) & (B == 0)), "Plate", "Mixed")))))))
+                         
+
+unique(TSV$DomBy30)
+
+```
+
+# Save
+
+```{r}
+TSV <- write.csv(TSV, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/ForValidation/TSV_ValPts20210202.csv")
+```
+

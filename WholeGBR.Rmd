@@ -246,6 +246,13 @@ unique(CCMR$DomBy30)
 
 ```{r}
 CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/CCMR_ValPts20210202.csv")
+
+CCMRcoords <- CCMR_pixels_to10m %>%
+  select("Pixel":"Latitude")
+
+# Write to csv
+CCMRcoords <- write.csv(CCMRcoords, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/CoralTypeMapping/CCMRcoords19022021.csv")
+
 ```
 
 # ##############

@@ -22,6 +22,9 @@ install.packages("RColorBrewer")
 install.packages("gmodels")
 install.packages("dplyr")
 install.packages("plyr")
+install.packages("foreign")
+##install.packages('Rtools')
+##install.packages('jwbannister/seepsVeg')
 
 
 library(tidyverse) # use install.packages("tidyverse") if receive an error message
@@ -34,6 +37,9 @@ library(RColorBrewer)
 library(gmodels)
 library(dplyr)
 library(plyr)
+library(foreign)
+##library(Rtools)
+##library(jwbannister/seepsVeg)
 
 ```
 
@@ -314,5 +320,28 @@ unique(CCMR$DomBy30)
 
 ```{r}
 CCMR <- write.csv(CCMR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Wave_Predictions_per_region/Validation/CCMR_ValPts20210202.csv")
+```
+
+#Read in large DBF
+
+```{r}
+
+setwd("//sees-rsrc//Data/3DGBR_HabMap/Modelling/GEE_Output/Pixels_0-11")
+
+
+# load the dbfs
+dbf_paths <- list.files("CCMRCCMR25to10_cliptoSRSRS.dbf", full.names = T)
+dbf_regions <- unlist(lapply(list.files("CCMR25to10_cliptoSRSRS.dbf"), function(x) strsplit(x, "_")[[1]][1]))
+names(dbf_paths) <- dbf_regions
+dbf_dfs <- mapply(load_dbf, dbf_paths, dbf_regions, SIMPLIFY = F)
+dbf_dfs <- lapply(dbf_dfs, na.omit)
+
+# alternate
+
+CCMR <- read.dbf(system.file("CCMRCCMR25to10_cliptoSRSRS.dbf", package="foreign")[1])
+str(x)
+summary(x)
+
+
 ```
 

@@ -345,3 +345,98 @@ summary(x)
 
 ```
 
+# Determine difference between CoralNet and ReefCLoud for CCMR
+
+```{r}
+
+# CoralNet CCMR output
+
+CCMRct <- CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2
+
+CCMRtype <-
+  CCMRct %>%
+  rowwise()%>%
+  mutate(
+    Branching = (ACR_BRA + ACR_BRA_B_ + ACR_HIP + ACR_HIP_B_ + BRA_OTH + BRA_OTH_B_ +POCI+ POCI_B_ +POR_BRA+ POR_BRA_B_),
+    Plate = (ACR_PE + ACR_PE_B_+ BRA_TAB_Ac+ BRA_TAB_B_ + TFP_RDG_Al +TFP_RDG_B_ +TFP_RND_Al +TFP_RND_B_),
+    Massive = (BRA_DIG_Ac+ BRA_DIG_B_ +FAV_MUS +FAV_MUS_B_ +MASE_OTH +MASEoth_B_ + POR_ENC + POR_ENC_B_ + POR_MASS + POR_MAS_B_),
+    Mixed = (ACR_OTH +ACR_OTH_B_+ OTH_HC+ OTH_HC_B_))
+
+CCMRtype2 <-
+  CCMRtype%>%
+  select("Name", "Latitude", "Longitude", "Branching", "Massive", "Plate","Mixed")
+
+print(count(CCMRtype2$Mixed))
+print(count(CCMRtype2$Massive))
+print(count(CCMRtype2$Branching))
+print(count(CCMRtype2$Plate))
+
+#CNb <- ggplot(CCMRtype2, aes(x=Branching)+
+#                geom_histogram)
+
+# ReefCloud CCMR output
+
+
+CCMRrct <-summary_inference_2020June06_NoDups%>%
+  select("image_name", "Branching","Massive","Plate")
+
+CCMRrct <- mutate(CCMRrct, Name=image_name)
+CCMRrct <-CCMRrct%>%
+  select("Name", "Branching","Massive","Plate")
+CCMRrct <- mutate(CCMRrct, BR=Branching)
+CCMRrct <- mutate(CCMRrct, MA=Massive)
+CCMRrct <- mutate(CCMRrct, PL=Plate)
+
+CCMRrct <-CCMRrct%>%
+  select("Name", "BR","MA","PL")
+
+print(count(CCMRrct$Mixed))
+print(count(CCMRrct$Massive))
+print(count(CCMRrct$Branching))
+print(count(CCMRrct$Plate))
+
+ReefCloud <- CCMRrct
+CoralNet <- CCMRtype2
+# Compare the two outputs
+
+Compare <- inner_join(ReefCloud, CoralNet, by = "Name")
+
+# write file
+ Compare <- write.csv(Compare, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/AnnotatonComparison.csv")
+
+#facet_wrap(Zone~., nc=2)+
+```
+
+# Plot frequencies
+
+```{r}
+
+# ReefCloud
+rcb <- hist(Compare$BR, main = "", xlab = "ReefCloud Branching")
+rcm <- hist(Compare$MA, main = "", xlab = "ReefCloud Massive")
+rcp <- hist(Compare$PL, main = "", xlab = "ReefCloud Plate")
+
+# CoralNet
+cnb <- hist(Compare$Branching, main = "", xlab = "CoralNet Branching")
+cnm <- hist(Compare$Massive, main = "", xlab = "CoralNet Massive")
+cnp <- hist(Compare$Plate, main = "", xlab = "CoralNet Plate")
+cnx <- hist(Compare$Mixed, main = "", xlab = "CoralNet Mixed")
+
+rm(CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2)
+rm(CCMRrct)
+rm(CCMRctype)
+rm(CCMRtype2)
+rm(Compare)
+rm(CoralNet)
+rm(cnb)
+rm(cnm)
+rm(cnp)
+rm(cnx)
+rm(summary_inference_2020June06_NoDups)
+rm(ReefCloud)
+rm(rcb)
+rm(rcm)
+rm(rcp)
+
+```
+

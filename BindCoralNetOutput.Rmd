@@ -56,14 +56,14 @@ options()
 
 ```
 
-# Read in Files
+# Read in Files SGBR
 ```{r}
 
 # SGBR
 
 # Bind tables - 201905
 
-# Readin Files
+# Read in Files
 
 # Bind
 SGBR201905 <- bind_rows(percent_covers_5_,percent_covers_6_,percent_covers_7_,percent_covers_8_,percent_covers_9_,percent_covers_10_,percent_covers_11_,percent_covers_12_,percent_covers_13_,percent_covers_14_)
@@ -84,18 +84,69 @@ SGBRall <- write.csv(SGBRall, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBe
 
 # Add coordinates
 # Heron 2018 + SGBR
-SGBRc <- select(SGBR_transects2, "Name", "Longitude", "Latitude")
 
-SGBRheroncoords <- bind_rows(Heron2018coordinates, SGBRc)
+SGBRheroncoords <- bind_rows(Heron2018coordinates, SGBR)
 
 SGBRallwithCoords <- SGBRall%>%
-  left_join(SGBRheroncoords, by ="Name")
+  inner_join(SGBRheroncoords, by ="Name")
 
 colnames(SGBRallwithCoords)
 
 # write to file
 
  SGBRallwithCoords <- write.csv(SGBRallwithCoords, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/ForProcessingCT/SGBRallwithCoords.csv")
+
+```
+
+
+# Read in Files FNGBR
+```{r}
+
+# FNGBR
+
+# Bind tables
+
+# Read in Files
+
+# Bind
+FNGBR <- bind_rows(percent_covers_25_,percent_covers_16_,percent_covers_17_,percent_covers_18_,percent_covers_19_,percent_covers_20_,percent_covers_21_,percent_covers_22_,percent_covers_23_,percent_covers_24_)
+
+
+FNGBR <- FNGBR%>%
+  select("Name", "ACR-BRA":"Seagrass")
+
+
+# write to file
+
+FNGBR <- write.csv(FNGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/FNGBR/FNGBR.csv")
+
+# Add coordinates
+
+FNGBRwithCoords <- FNGBR%>%
+  inner_join(X20191201_GBRFarNorth_PhotoTransectcoods, by ="Name")
+
+colnames(FNGBRwithCoords)
+
+# write to file
+
+ FNGBRwithCoords <- write.csv(FNGBRwithCoords, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/ForProcessingCT/FNGBRwithCoords.csv")
+
+```
+
+# Bind whole GBR
+
+```{r}
+
+# Read in Files
+
+# Bind
+WholeGBR_images <- bind_rows(CCMRall_CT_ben,SGBRall_CT_ben,FNGBR_CT_ben)
+
+colnames(WholeGBR_images)
+
+# write to file
+
+ WholeGBR_images <- write.csv(WholeGBR_images, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WholeGBR_images.csv")
 
 ```
 

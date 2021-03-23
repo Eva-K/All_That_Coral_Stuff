@@ -456,6 +456,7 @@ rm(rcp)
 # ###########################################################
 # Sort out CoralNet data for Mitch (coordinates and groupings)
 # #############################################################
+
 # SGBR June
 ```{r}
 # Southern GBR June
@@ -523,13 +524,77 @@ SGBRJune_MitchCoords <- SGBRJune_MitchCoords%>%
 
 ```
 
+# SGBR ALL
+
+```{r Southern GBR ALL}
+# Southern GBR ALL
+# Read in data
+
+# Group data according to spreadsheet - Coral Type
+SGBRtype <-
+  SGBRallwithCoords %>%
+  rowwise()%>%
+  mutate( 
+    Branching = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B`),
+    Plate = (`ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B`),
+    Massive = (`BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B`),
+    Mixed = (`ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    CT_Oth = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `MINV_COTS` + `MOB-INV` + `OTH-SF` + `OTH-SF-B` + `OTH-SINV` + `Sand` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE` + `ALG_OTH` + `BMA_sand` + `CAL_CCA_DC` + `CAL_CCA_RB` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` + `EAM_DHC` + `EAM_RB` + `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin` + `Seagrass`))
+    
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(SGBRtype)
+unique(SGBRtype$CT_Tot)
+
+# Group according to Benthic Type
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B` + `ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B` + `BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B` + `ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    SC = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `OTH-SF` + `OTH-SF-B`),
+    SD = (`Sand` + `BMA_sand`),
+    RB = (`CAL_CCA_RB` + `EAM_RB`),
+    RK = (`CAL_CCA_DC` + `EAM_DHC`),
+    AL = (`ALG_OTH` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` +  `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin`),
+    OT = (`MINV_COTS` + `MOB-INV`  + `OTH-SINV` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE`),
+    SG = (`Seagrass`))
+    
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(SGBRtype)
+unique(SGBRtype$Ben_Tot)
+
+# CLip the columns
+
+SGBR_Mitch <- SGBRtype %>%
+  select("Name", "Longitude","Latitude", "Branching":"Ben_Tot")
+
+# write file
+ SGBR_Mitch <- write.csv(SGBR_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/SGBRall_CT_ben.csv")
+
+```
+
 # CCMR
 
 ```{r}
 # CCMR 
+# add coordinates to Legacy
+Legacy <- inner_join(percent_covers_Legacy,LegacyCoordinates, by ="Name")
+
+# bind CCMR and Legacy
+CCMRleg <- bind_rows(CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2, Legacy)
 
 # Copy data
-CCMRct <- CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2
+CCMRct <- CCMRleg
 
 CCMRtype <-
   CCMRct %>%
@@ -573,21 +638,71 @@ CCMRtype <-
 colnames(CCMRtype)
 unique(CCMRtype$Ben_Tot)
 
-# CLip the columns
+# Select columns
 
 CCMR_Mitch <- CCMRtype %>%
-  select("Name", "Branching":"Ben_Tot")
-
-# Add coordinates
-
-CCMR_MitchCoords <- CCMR_Mitch%>%
-  left_join(CCMR_All, by ="Name")
-
-CCMR_MitchCoords <- CCMR_MitchCoords%>%
-  select("Name", "Longitude","Latitude", "Branching":"Ben_Tot")
+  select("Name", "Latitude":"Ben_Tot")
 
 # write file
- CCMR_MitchCoords <- write.csv(CCMR_MitchCoords, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMR2017.csv")
+ CCMR_Mitch <- write.csv(CCMR_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRall_CT_ben.csv")
 
 ```
 
+# FNGBR
+
+```{r FNGBR}
+# FNGBR
+# Read in data
+
+# Group data according to spreadsheet - Coral Type
+FNGBRtype <-
+  FNGBRwithCoords %>%
+  rowwise()%>%
+  mutate( 
+    Branching = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B`),
+    Plate = (`ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B`),
+    Massive = (`BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B`),
+    Mixed = (`ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    CT_Oth = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `MINV_COTS` + `MOB-INV` + `OTH-SF` + `OTH-SF-B` + `OTH-SINV` + `Sand` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE` + `ALG_OTH` + `BMA_sand` + `CAL_CCA_DC` + `CAL_CCA_RB` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` + `EAM_DHC` + `EAM_RB` + `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin` + `Seagrass`))
+    
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(FNGBRtype)
+unique(FNGBRtype$CT_Tot)
+
+# Group according to Benthic Type
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B` + `ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B` + `BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B` + `ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    SC = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `OTH-SF` + `OTH-SF-B`),
+    SD = (`Sand` + `BMA_sand`),
+    RB = (`CAL_CCA_RB` + `EAM_RB`),
+    RK = (`CAL_CCA_DC` + `EAM_DHC`),
+    AL = (`ALG_OTH` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` +  `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin`),
+    OT = (`MINV_COTS` + `MOB-INV`  + `OTH-SINV` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE`),
+    SG = (`Seagrass`))
+    
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(FNGBRtype)
+unique(FNGBRtype$Ben_Tot)
+
+# CLip the columns
+
+FNGBR_Mitch <- FNGBRtype %>%
+  select("Name", "Longitude","Latitude", "Branching":"Ben_Tot")
+
+# write file
+ FNGBR_Mitch <- write.csv(FNGBR_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/FNGBR_CT_ben.csv")
+
+```

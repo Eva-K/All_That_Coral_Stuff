@@ -1,0 +1,101 @@
+---
+title: "BindCoralNetOutput"
+author: "Eva Kovacs"
+date: "23/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## packages
+
+```{r what you need }
+install.packages("tidyverse")
+install.packages("janitor")
+install.packages("skimr")
+install.packages("stringr")
+install.packages("data.table")
+install.packages("ggthemes")
+install.packages("RColorBrewer")
+install.packages("gmodels")
+install.packages("dplyr")
+install.packages("plyr")
+install.packages("foreign")
+##install.packages('Rtools')
+##install.packages('jwbannister/seepsVeg')
+
+
+library(tidyverse) # use install.packages("tidyverse") if receive an error message
+library(janitor) # use install.packages("janitor") if receive an error message
+library(skimr)  # use install.packages("skimr") if receive an error message
+library(stringr) # use install.packages("stringr") if receive an error message
+library(data.table)
+library(ggthemes)
+library(RColorBrewer)
+library(gmodels)
+library(dplyr)
+library(plyr)
+library(foreign)
+##library(Rtools)
+##library(jwbannister/seepsVeg)
+
+```
+
+
+# Set the number of significant digits to preserve
+
+```{r}
+
+# Set
+options(digits = 10)
+
+#Check
+options()
+
+```
+
+# Read in Files
+```{r}
+
+# SGBR
+
+# Bind tables - 201905
+
+# Readin Files
+
+# Bind
+SGBR201905 <- bind_rows(percent_covers_5_,percent_covers_6_,percent_covers_7_,percent_covers_8_,percent_covers_9_,percent_covers_10_,percent_covers_11_,percent_covers_12_,percent_covers_13_,percent_covers_14_)
+
+
+SGBR201905 <- SGBR201905%>%
+  select("Name", "ACR-BRA":"Seagrass")
+
+SGBRMKYplusTSV <- bind_rows(SGBR201905,X201906_SGBR) 
+
+# bind to Heron 2018
+
+SGBRall <- bind_rows(SGBRMKYplusTSV,percent_covers_Heron2018)
+
+# write to file
+
+SGBRall <- write.csv(SGBRall, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/SGBR/SGBRall.csv")
+
+# Add coordinates
+# Heron 2018 + SGBR
+SGBRc <- select(SGBR_transects2, "Name", "Longitude", "Latitude")
+
+SGBRheroncoords <- bind_rows(Heron2018coordinates, SGBRc)
+
+SGBRallwithCoords <- SGBRall%>%
+  left_join(SGBRheroncoords, by ="Name")
+
+colnames(SGBRallwithCoords)
+
+# write to file
+
+ SGBRallwithCoords <- write.csv(SGBRallwithCoords, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/ForProcessingCT/SGBRallwithCoords.csv")
+
+```
+

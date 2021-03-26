@@ -706,3 +706,280 @@ FNGBR_Mitch <- FNGBRtype %>%
  FNGBR_Mitch <- write.csv(FNGBR_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/FNGBR_CT_ben.csv")
 
 ```
+
+# ########################################################
+# ########################################################
+# Group data according to peripoint and summarise coral type for WGBR
+
+```{r Peripoint to each image}
+
+# WGBR
+
+# Join datframes by "Name"
+
+WGBR_CT <- inner_join(WholeGBR_images, WGBR_Th_FD_P_20190525, by = "Name")
+
+# write to csv
+
+#FNGBR_CT <- write.csv(FNGBR_CT, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/CT_total/FNGBR_PPts.csv")
+
+
+```
+
+# Summarise by PeriPoint
+
+```{r Summarise by PeriPt}
+
+# Count number of occurrences of each PeriPt and add that to the table
+
+WGBR_PPt <- WGBR_CT %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(WGBR_PPt)
+
+WGBR_PPt <- select(WGBR_PPt, "Name":"Longitude", "Branching":"count")
+
+# Summarise by PeriPt
+
+# Calculate Total coral type points per zone
+# when in doubt, add dplyr::
+
+WGBR_TotPts <- WGBR_PPt %>%
+  select("Name":"Longitude", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(WGBR_TotPts)
+
+# Calculate fractional amount of coral types
+
+WGBR_TotPts <- dplyr::mutate(WGBR_TotPts, BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(WGBR_TotPts)
+
+# Determine Dominant Coral Type per zone
+
+WGBR_DomPerZone <- mutate(WGBR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(WGBR_DomPerZone$DomZone)
+
+head(WGBR_DomPerZone)
+
+colnames(WGBR_DomPerZone)
+
+# write to file
+
+WGBR_DomPerZone <- write.csv(WGBR_DomPerZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WGBR_DomPerZone20210326.csv")
+
+
+```
+
+# Calculate percentage for dominant coral based on count per zone
+
+```{r}
+
+WGBRZone <- WGBR_DomPerZone20210326
+colnames(WGBRZone)
+
+# remove duplicated PeriPt rows
+WGBRZone <- WGBRZone %>% distinct(PeriPt, .keep_all = TRUE)
+
+# No Scaling ###################################
+
+# Dominant CT by percentage with 5% difference
+
+WGBRZone <- mutate(WGBRZone, DomByPer5 = if_else((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                      if_else(((MoverTot - BoverTot) >=0.05) & ((MoverTot - PoverTot) >= 0.05) & ((MoverTot - MixoverTot) >= 0.05), "Massive",
+                                                      if_else(((BoverTot - MoverTot) >=0.05) & ((BoverTot - PoverTot) >=0.05) & ((BoverTot - MixoverTot) >=0.05), "Branching",
+                                                              if_else(((PoverTot - BoverTot) >=0.05) & ((PoverTot - MoverTot) >=0.05) & ((PoverTot - MixoverTot) >=0.05), "Plate", 
+                                                                      if_else((BoverTot <0.05) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "Branching",
+                                                                              if_else((MoverTot < 0.0005) & (BoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "Massive",
+                                                                                      if_else((PoverTot < 0.0005) & (MoverTot == 0) & (BoverTot ==0) & (MixoverTot == 0), "Plate",
+                                                                                              "Mixed"))))))))
+
+unique(WGBRZone$DomByPer5)
+
+# Dominant CT by percentage with 15% difference
+
+WGBRZone <- mutate(WGBRZone, DomByPer15 = if_else((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                      if_else(((MoverTot - BoverTot) >=0.15) & ((MoverTot - PoverTot) >= 0.15) & ((MoverTot - MixoverTot) >= 0.15), "Massive",
+                                                      if_else(((BoverTot - MoverTot) >=0.15) & ((BoverTot - PoverTot) >=0.15) & ((BoverTot - MixoverTot) >=0.15), "Branching",
+                                                              if_else(((PoverTot - BoverTot) >=0.15) & ((PoverTot - MoverTot) >=0.15) & ((PoverTot - MixoverTot) >=0.15), "Plate", 
+                                                                      if_else((BoverTot <0.15) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "Branching",
+                                                                              if_else((MoverTot < 0.0005) & (BoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "Massive",
+                                                                                      if_else((PoverTot < 0.0005) & (MoverTot == 0) & (BoverTot ==0) & (MixoverTot == 0), "Plate",
+                                                                                              "Mixed"))))))))
+
+unique(WGBRZone$DomByPer15)
+
+WGBRZone <- select(WGBRZone, "Name", "PeriPt":"P_Long", "Branching":"CT_Oth", "count":"DomByPer15")
+
+# write to file
+
+WGBRZone <- write.csv(WGBRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WGBRDomCTbyPercentage20210326.csv")
+
+
+
+```
+
+
+
+# Haven't used yet##########################
+# Determine Percentages of Coral, Algae, unconsolidated, consolidated
+
+```{r percentages and scaling factor}
+# Percentages of Coral, Algae, unconsolidated, consolidated
+
+colnames(WGBR_DomPerZone)
+
+FNGBR_Scaling <- mutate(FNGBR_DomPerZoneB, C_Pts = TotBrpts + TotMapts + TotPpts, Con_Pts = TotRKPts + TotRPts)
+
+colnames(FNGBR_Scaling)
+head(FNGBR_Scaling)
+
+FNGBR_Scaling <- mutate(FNGBR_Scaling, C_Per = 100*(C_Pts/TotPts), Con_Per = 100*(Con_Pts/TotPts), Alg_Per = 100*(TotAlgPts/TotPts), Uncon_Per = 100*(TotSandPts/TotPts), OT_Per = 100*(TotOthPts/TotPts))
+
+FNGBR_Scaling <- mutate(FNGBR_Scaling, TotPer = C_Per + Con_Per + Alg_Per + Uncon_Per + OT_Per)
+
+unique(FNGBR_Scaling$TotPer)
+
+FNGBR_Scaling <- mutate(FNGBR_Scaling, Scale_F = 100/C_Per)
+
+unique(FNGBR_Scaling$Scale_F)
+
+# write to csv
+
+FNGBR_Scaling <- write.csv(FNGBR_Scaling, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/FNQ/CTworking/FNGBR_Scaling.csv")
+
+```
+
+# Determine coral type percentages and subsequently dominant coral type per zone by percentage
+
+```{r coral type % and dom CT/zone}
+
+FNGBR_DomSF <- FNGBR_Scaling
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, BrPerTot = ifelse(Scale_F > 0, 100*(BoverTot*Scale_F), "NA"))
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, MaPerTot = ifelse(Scale_F > 0, 100*(MoverTot*Scale_F), "NA"))
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, PPerTot = ifelse(Scale_F > 0, 100*(PoverTot*Scale_F), "NA"))
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, CTPerTot = BrPerTot + MaPerTot + PPerTot)
+
+unique(FNGBR_DomSF$CTPerTot)
+
+# Dominant CT by Percentage
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
+                                                      if_else((MaPerTot > BrPerTot) & (MaPerTot > PPerTot), "Massive",
+                                                      if_else((BrPerTot > MaPerTot) & (BrPerTot > PPerTot), "Branching",
+                                                              if_else((PPerTot > BrPerTot) & (PPerTot > MaPerTot), "Plate", "Mixed")))))
+
+unique(FNGBR_DomSF$DomByPer)
+
+# Dominant CT by percentage with 5% difference
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer5 = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
+                                                      if_else(((MaPerTot - BrPerTot) >=5) & ((MaPerTot - PPerTot) >= 5), "Massive",
+                                                      if_else(((BrPerTot - MaPerTot) >=5) & ((BrPerTot - PPerTot) >=5), "Branching",
+                                                              if_else(((PPerTot - BrPerTot) >=5) & ((PPerTot - MaPerTot) >=5), "Plate", 
+                                                                      if_else((BrPerTot <5) & (MaPerTot == 0) & ( PPerTot == 0), "Branching",
+                                                                              if_else((MaPerTot <5) & (BrPerTot == 0) & (PPerTot == 0), "Massive",
+                                                                                      if_else((PPerTot <5) & (MaPerTot == 0) & (BrPerTot ==0), "Plate",
+                                                                                              "Mixed"))))))))
+
+unique(FNGBR_DomSF$DomByPer5)
+
+# Dominant CT by percentage with 15% difference
+
+FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer15 = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
+                                                      if_else(((MaPerTot - BrPerTot) >= 15) & ((MaPerTot - PPerTot) >= 15), "Massive",
+                                                      if_else(((BrPerTot - MaPerTot) >=15) & ((BrPerTot - PPerTot) >=15), "Branching",
+                                                              if_else(((PPerTot - BrPerTot) >=15) & ((PPerTot - MaPerTot) >=15), "Plate", 
+                                                                      if_else((BrPerTot <15) & (MaPerTot == 0) & ( PPerTot == 0), "Branching",
+                                                                              if_else((MaPerTot <15) & (BrPerTot == 0) & (PPerTot == 0), "Massive",
+                                                                                      if_else((PPerTot <15) & (MaPerTot == 0) & (BrPerTot ==0), "Plate",
+                                                                                              "Mixed"))))))))
+
+unique(FNGBR_DomSF$DomByPer15)
+
+colnames(FNGBR_DomSF)
+
+# write to file
+
+FNGBR_DomSF <- write.csv(FNGBR_DomSF, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/FNQ/CTworking/FNGBR_DomCTbyPercentage.csv")
+
+```
+
+# Determine dominant substrate per zone and coral point ratios
+
+```{r coral point ratios & Dom substrate/zone}
+
+FNGBR_sub <- select(FNGBR_DomCTbyPercentage, "FID_FNQ_th":"DomByPer15")
+
+# Coral Pt ratios
+
+FNGBR_sub <- mutate(FNGBR_sub, DomCPts = if_else(DomByPer == "Branching", TotBrpts,
+                                                 if_else(DomByPer == "Massive", TotMapts, 
+                                                         if_else(DomByPer == "Plate", TotPpts, 0))))
+
+unique(FNGBR_sub$DomCPts)
+
+FNGBR_sub <- mutate(FNGBR_sub, DomCToverTotCT = (DomCPts/(TotBrpts + TotMapts + TotPpts)))
+
+FNGBR_sub <- mutate(FNGBR_sub, BroverTotCT = (TotBrpts/(TotBrpts + TotMapts + TotPpts)))
+
+FNGBR_sub <- mutate(FNGBR_sub, MaCToverTotCT = (TotMapts/(TotBrpts + TotMapts + TotPpts)))
+
+FNGBR_sub <- mutate(FNGBR_sub, PCToverTotCT = (TotPpts/(TotBrpts + TotMapts + TotPpts)))
+
+# Determine dominant substrate
+
+FNGBR_sub <- mutate(FNGBR_sub, DomSub = if_else(Con_Pts > TotSandPts, "Consolidated",
+                                                if_else(TotSandPts > Con_Pts, "Unconsolidated", "None")))
+
+unique(FNGBR_sub$DomSub)
+
+# write to csv
+
+FNGBR_sub <- write.csv(FNGBR_sub, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/DomPer/FNGBR_DomCT_DomSub.csv")
+
+```
+
+# write file for Dom CT Dom sub
+
+```{r read in data}
+
+FNGBR_DomCT <- FNGBR_DomCT_DomSub
+
+colnames(FNGBR_DomCT)
+
+FNGBR_DomCT_Domsub_JC <- select(FNGBR_DomCT, "PeriPt":"P_Long", "count", "TotPts", "TotBrpts", "BoverTot", "TotMapts", "MoverTot", "TotPpts", "PoverTot", "DomZone", "BrPerTot":"PPerTot", "CTPerTot", "DomByPer", "DomCPts":"PCToverTotCT", "Con_Pts", "TotSandPts", "DomSub")
+
+# write to file
+
+FNGBR_DomCT_Domsub_JC <- write.csv(FNGBR_DomCT_Domsub_JC, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/Finals/FNGBR_DomCT_DomSub20190520.csv")
+
+```
+
+# write file for benthic percentages
+
+```{r read in data}
+
+FNGBR_percentages <- FNGBR_DomCT_DomSub
+
+colnames(FNGBR_percentages)
+
+FNGBR_Per_JC <- select(FNGBR_percentages, "PeriPt":"P_Long", "C_Pts", "Con_Pts", "TotAlgPts", "TotSandPts", "TotOthPts", "C_Per", "Con_Per", "Alg_Per", "Uncon_Per", "OT_Per", "Scale_F")
+
+# write to file
+
+FNGBR_Per_JC <- write.csv(FNGBR_Per_JC, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/Finals/FNGBR_Percentages20190520.csv")
+
+```

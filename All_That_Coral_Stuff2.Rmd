@@ -524,7 +524,7 @@ SGBRJune_MitchCoords <- SGBRJune_MitchCoords%>%
 
 ```
 
-# SGBR ALL
+# SGBR ALL including Heron 2018
 
 ```{r Southern GBR ALL}
 # Southern GBR ALL
@@ -849,14 +849,6 @@ CCMR_CN <- CCMR_CN %>% unite("Pixel", Region:id, remove = FALSE)
 
 ```{r}
 # CCMR 
-# add coordinates to Legacy
-Legacy <- inner_join(percent_covers_Legacy,LegacyCoordinates, by ="Name") ## not CCMR
-
-# bind CCMR and Legacy
-CCMRleg <- bind_rows(CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2, Legacy) ## not CCMR
-
-# Copy data
-CCMRct <- CCMRleg
 
 CCMRtype <-
   CCMR_CN %>%
@@ -925,7 +917,6 @@ colnames(CCMR_type2_Ppt)
 # Summarise by PeriPoint
 
 ```{r Summarise by PeriPt}
-
 # Count number of occurrences of each PeriPt and add that to the table
 
 CCMR_PPt <- CCMR_type2_Ppt %>%
@@ -1036,197 +1027,277 @@ colnames(CCMRZone)
 
 
 # Export CSV
-CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv") 
-
-#### DO NOT DO #####
-# Add row with numbers for Juan
-CCMR_pixels_ALL <- CCMR_pixels_ALL %>% add_row(uWSLmean=1,	uWSL100=2,	uWSL99=3,	uWSL90=4,	UonrootTmean=5,	UonrootT100=6,	UonrootT99=7,	UonrootT90=8,	ubedmean=9,	ubed100=10,	ubed99=11,	ubed90=12,	Tpmean=13,	Tp100=14,	Tp99=15,	Tp90=16,	Hsmean=17,	Hs100=18,	Hs99=19,	Hs98=20,	Hs97=21,	Hs96=22,	Hs95=23,	Hs90=24,	Hs80=25,	Hs70=26,	Efmean=27,	Ef100=28,	Ef99=29,	Ef90=30,	Edmean=31,	Ed100=32,	Ed99=33,	Ed90=34,	SLOPE=35, .before = 2)
-
- 
- 
-## DO NOT GO FURTHER IN THIS BLOCK
-## GO TO NEXT BLOCK
+CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
+```
 
 
-### DID NOT DO FOR JUAN ####
+# SGBR: ALL including Heron 2018
+
+```{r Southern GBR ALL}
+# Southern GBR ALL
+# Read in data and make a copy
+
+SGBR <- SGBRall
+
+# Group data according to spreadsheet - Coral Type
+SGBRtype <-
+  SGBR %>%
+  rowwise()%>%
+  mutate( 
+    Branching = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B`),
+    Plate = (`ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B`),
+    Massive = (`BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B`),
+    Mixed = (`ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    CT_Oth = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `MINV_COTS` + `MOB-INV` + `OTH-SF` + `OTH-SF-B` + `OTH-SINV` + `Sand` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE` + `ALG_OTH` + `BMA_sand` + `CAL_CCA_DC` + `CAL_CCA_RB` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` + `EAM_DHC` + `EAM_RB` + `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin` + `Seagrass`))
+    
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(SGBRtype)
+unique(SGBRtype$CT_Tot)
+
+# Group according to Benthic Type
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B` + `ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B` + `BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B` + `ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    SC = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `OTH-SF` + `OTH-SF-B`),
+    SD = (`Sand` + `BMA_sand`),
+    RB = (`CAL_CCA_RB` + `EAM_RB`),
+    RK = (`CAL_CCA_DC` + `EAM_DHC`),
+    AL = (`ALG_OTH` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` +  `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin`),
+    OT = (`MINV_COTS` + `MOB-INV`  + `OTH-SINV` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE`),
+    SG = (`Seagrass`))
+    
+SGBRtype <-
+  SGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(SGBRtype)
+unique(SGBRtype$Ben_Tot)
+
+# CLip the columns
+
+
+# Select columns
+
+SGBRtype <- SGBRtype %>%
+  select("Name":"Seagrass", "Branching":"Ben_Tot")
+
+
+```
+
+# Add perimeter points
+# First join TSV and MKY/HR files - no - have to do them separately
+
+```{r}
+# Join TSV names to Peri points
+# read in files
+
+TSVwaves <- TSV_Peri_Th_int2
+
+TSVnames <- TSV_Th_FD_P
+
+TSVps <- inner_join(TSVnames, TSVwaves, by = "FID_TSV_th")
+
+
+# Rename columns
+colnames(TSVps)
+names(TSVps)[names(TSVps) == "TSV_uWSLme"] <- "uWSLmean"
+names(TSVps)[names(TSVps) == "TSV_uWSL10"] <- "uWSL100"
+#TSVps <- rename(TSVps, uWSL100=TSV_uWSL1)
+names(TSVps)[names(TSVps) == "TSV_uWSL99"] <- "uWSL99"
+#TSVps <- rename(TSVps, uWSL99=TSV_uWSL9)
+names(TSVps)[names(TSVps) == "TSV_uWSL90"] <- "uWSL90"
+#TSVps <- rename(TSVps, uWSL90=TSV_uWS_1)
+names(TSVps)[names(TSVps) == "TSV_Uonroo"] <- "UonrootTmean"
+#TSVps <- rename(TSVps, UonrootTmean=TSV_Uonro)
+names(TSVps)[names(TSVps) == "TSV_Uonr_1"] <- "UonrootT100"
+#TSVps <- rename(TSVps, UonrootT100=TSV_Uon_1)
+names(TSVps)[names(TSVps) == "TSV_Uonr_2"] <- "UonrootT99"
+#TSVps <- rename(TSVps, UonrootT99=TSV_Uon_2)
+names(TSVps)[names(TSVps) == "TSV_Uonr_3"] <- "UonrootT90"
+#TSVps <- rename(TSVps, UonrootT90=TSV_Uon_3)
+names(TSVps)[names(TSVps) == "TSV_ubedme"] <- "ubedmean"
+#TSVps <- rename(TSVps,ubedmean=TSV_ubedm)
+names(TSVps)[names(TSVps) == "TSV_ubed10"] <- "ubed100"
+#TSVps <- rename(TSVps,ubed100=TSV_ubed1)
+names(TSVps)[names(TSVps) == "TSV_ubed99"] <- "ubed99"
+#TSVps <- rename(TSVps,ubed99=TSV_ubed9)
+names(TSVps)[names(TSVps) == "TSV_ubed90"] <- "ubed90"
+#TSVps <- rename(TSVps,ubed90=TSV_ube_1)
+names(TSVps)[names(TSVps) == "TSV_Tpmean"] <- "Tpmean"
+#TSVps <- rename(TSVps,Tpmean=TSV_Tpmea)
+names(TSVps)[names(TSVps) == "TSV_Tp100_"] <- "Tp100"
+#TSVps <- rename(TSVps,Tp100=TSV_Tp100)
+names(TSVps)[names(TSVps) == "TSV_Tp99_R"] <- "Tp99"
+#TSVps <- rename(TSVps,Tp99=TSV_Tp99_)
+names(TSVps)[names(TSVps) == "TSV_Tp90_R"] <- "Tp90"
+#TSVps <- rename(TSVps,Tp90=TSV_Tp90_)
+names(TSVps)[names(TSVps) == "TSV_Hsmean"] <- "Hsmean"
+#TSVps <- rename(TSVps,Hsmean=TSV_Hsmea)
+names(TSVps)[names(TSVps) == "TSV_Hs100_"] <- "Hs100"
+#TSVps <- rename(TSVps,Hs100=TSV_Hs100)
+names(TSVps)[names(TSVps) == "TSV_Hs99_R"] <- "Hs99"
+#TSVps <- rename(TSVps,Hs99=TSV_Hs99_)
+names(TSVps)[names(TSVps) == "TSV_Hs98_R"] <- "Hs98"
+#TSVps <- rename(TSVps,Hs98=TSV_Hs98_)
+names(TSVps)[names(TSVps) == "TSV_Hs97_R"] <- "Hs97"
+#TSVps <- rename(TSVps,Hs97=TSV_Hs97_)
+names(TSVps)[names(TSVps) == "TSV_Hs96_R"] <- "Hs96"
+#TSVps <- rename(TSVps,Hs96=TSV_Hs96_)
+names(TSVps)[names(TSVps) == "TSV_Hs95_R"] <- "Hs95"
+#TSVps <- rename(TSVps,Hs95=TSV_Hs95_)
+names(TSVps)[names(TSVps) == "TSV_Hs90_R"] <- "Hs90"
+#TSVps <- rename(TSVps,Hs90=TSV_Hs90_)
+names(TSVps)[names(TSVps) == "TSV_Hs80_R"] <- "Hs80"
+#TSVps <- rename(TSVps,Hs80=TSV_Hs80_)
+names(TSVps)[names(TSVps) == "TSV_Hs70_R"] <- "Hs70"
+#TSVps <- rename(TSVps,Hs70=TSV_Hs70_)
+names(TSVps)[names(TSVps) == "TSV_Efmean"] <- "Efmean"
+#TSVps <- rename(TSVps,Efmean=TSV_Efmea)
+names(TSVps)[names(TSVps) == "TSV_Ef100_"] <- "Ef100"
+#TSVps <- rename(TSVps,Ef100=TSV_Ef100)
+names(TSVps)[names(TSVps) == "TSV_Ef99_R"] <- "Ef99"
+#TSVps <- rename(TSVps,Ef99=TSV_Ef99_)
+names(TSVps)[names(TSVps) == "TSV_Ef90_R"] <- "Ef90"
+#TSVps <- rename(TSVps,Ef90=TSV_Ef90_)
+names(TSVps)[names(TSVps) == "TSV_Edmean"] <- "Edmean"
+#TSVps <- rename(TSVps,Edmean=TSV_Edmea)
+names(TSVps)[names(TSVps) == "TSV_Ed100_"] <- "Ed100"
+#TSVps <- rename(TSVps,Ed100=TSV_Ed100)
+names(TSVps)[names(TSVps) == "TSV_Ed99_R"] <- "Ed99"
+#TSVps <- rename(TSVps,Ed99=TSV_Ed99_)
+names(TSVps)[names(TSVps) == "TSV_Ed90_R"] <- "Ed90"
+#TSVps <- rename(TSVps,Ed90=TSV_Ed90_)
+names(TSVps)[names(TSVps) == "TSV_slope"] <- "SLOPE"
+#TSVps <- rename(TSVps,SLOPE=GBR_Sentin)
+names(TSVps)[names(TSVps) == "image_name"] <- "Name"
+names(TSVps)[names(TSVps) == "PeriPt.x"] <- "PeriPt"
+names(TSVps)[names(TSVps) == "P_Lat.x"] <- "P_Lat"
+names(TSVps)[names(TSVps) == "P_Long.x"] <- "P_Long"
+colnames(TSVps)
+TSVps <- select(TSVps, "Name":"SLOPE")
+
+# Join TSV to MKY/HR
+names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "image_name"] <- "Name"
+names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootTmean"] <- "UonrootTmean"
+names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT99"] <- "UonrootT99"
+names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT100"] <- "UonrootT100"
+names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT90"] <- "UonrootT90"
+
+MKY_HR_Th_FD_P_W_S_20200526 <- select(MKY_HR_Th_FD_P_W_S_20200526, "Name":"Edmean")
+
+colnames(TSVps)
+colnames(MKY_HR_Th_FD_P_W_S_20200526)
+colnames(SGBRtype)
+
+# Make unique names for TSV and MKY/HR
+# Make ID specific
+TSVps <- TSVps %>% dplyr::mutate(Region = as.character("TSV_"))
+
+TSVps <- TSVps %>% dplyr::mutate(id = row_number())
+
+TSVps <- TSVps %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(TSVps)
+TSVps2 <- TSVps%>%
+  select("Name":"P_Long", "Ed90":"SLOPE","Pixel" )
+
+MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% dplyr::mutate(Region = as.character("MKY_"))
+
+MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% dplyr::mutate(id = row_number())
+
+MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(MKY_HR_Th_FD_P_W_S_20200526)
+
+MKYps2 <- MKY_HR_Th_FD_P_W_S_20200526%>%
+  select("Name":"P_Long", "SLOPE":"Edmean","Pixel" )
+
+# Bind Rows - no - need to do separately
+#SGBR_CT <- bind_rows(MKYps2, TSVps)
+
+# write to file
+
+TSVps2 <- write.csv(TSVps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/TSVwavesPpts.csv") 
+
+MKYps2 <- write.csv(MKYps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYwavesPpts.csv") 
+
+```
+
+# Join Perimeter points to field data by image names
+
+```{r}
+TSV_FD <- inner_join(SGBRtype, TSVwavesPpts, by = "Name")
+
+MKY_FD <- inner_join(SGBRtype, MKYwavesPpts, by = "Name")
+
+# write to file
+
+TSV_FD <- write.csv(TSV_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/TSVeverythingCT.csv") 
+
+MKY_FD <- write.csv(MKY_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYeverythingCT.csv") 
+
+```
+
+# Summarise by PeriPoint
+
+```{r Summarise by PeriPt}
+# Read in data and select columns
+colnames(TSVeverythingCT)
+TSV <- TSVeverythingCT
+
+# Count number of occurrences of each PeriPt and add that to the table
+
+TSV <- TSV %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(TSV)
+
+TSV <- select(TSV, "Pixel", "Name", "PeriPt":"P_Long", "ACR-BRA":"Ben_Tot", "Ed90":"SLOPE", "count")
+
+# Summarise by PeriPt
+
+# Calculate Total coral type points per zone
+# when in doubt, add dplyr::
+
+TSV_TotPts <- TSV %>%
+ # select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(TSV_TotPts)
+
 # Calculate fractional amount of coral types
 
-CCMR_TotPts <- dplyr::mutate(CCMR_TotPts, BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+TSV_TotPts <- TSV_TotPts%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
 
-colnames(CCMR_TotPts)
+colnames(TSV_TotPts)
 
-# Determine Dominant Coral Type per zone
+# remove duplicated Ppt rows
 
-WGBR_DomPerZone <- mutate(WGBR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
-                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
-        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
-               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
-                      "Mixed")))))
+TSVZone <- TSV_TotPts %>% distinct(PeriPt, .keep_all = TRUE)
 
-unique(WGBR_DomPerZone$DomZone)
+colnames(TSVZone)
 
-head(WGBR_DomPerZone)
+TSVZone <- TSVZone %>% select("Pixel", "PeriPt":"P_Long","count", "Branching":"CT_Oth","TotPts":"MixoverTot","Ed90":"SLOPE")
 
-colnames(WGBR_DomPerZone)
+colnames(TSVZone)
 
-# write to file
-
-WGBR_DomPerZone <- write.csv(WGBR_DomPerZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WGBR_DomPerZone20210326.csv")
+# Intermediate Save
+TSVZone <- write.csv(TSVZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/TSVwaves.csv")
 
 
+# Export CSV
+SGBRpts<-write.csv(SGBRpts, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
 ```
 
-# Haven't used yet##########################
-# Determine Percentages of Coral, Algae, unconsolidated, consolidated
-
-```{r percentages and scaling factor}
-# Percentages of Coral, Algae, unconsolidated, consolidated
-
-colnames(WGBR_DomPerZone)
-
-FNGBR_Scaling <- mutate(FNGBR_DomPerZoneB, C_Pts = TotBrpts + TotMapts + TotPpts, Con_Pts = TotRKPts + TotRPts)
-
-colnames(FNGBR_Scaling)
-head(FNGBR_Scaling)
-
-FNGBR_Scaling <- mutate(FNGBR_Scaling, C_Per = 100*(C_Pts/TotPts), Con_Per = 100*(Con_Pts/TotPts), Alg_Per = 100*(TotAlgPts/TotPts), Uncon_Per = 100*(TotSandPts/TotPts), OT_Per = 100*(TotOthPts/TotPts))
-
-FNGBR_Scaling <- mutate(FNGBR_Scaling, TotPer = C_Per + Con_Per + Alg_Per + Uncon_Per + OT_Per)
-
-unique(FNGBR_Scaling$TotPer)
-
-FNGBR_Scaling <- mutate(FNGBR_Scaling, Scale_F = 100/C_Per)
-
-unique(FNGBR_Scaling$Scale_F)
-
-# write to csv
-
-FNGBR_Scaling <- write.csv(FNGBR_Scaling, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/FNQ/CTworking/FNGBR_Scaling.csv")
-
-```
-
-# Determine coral type percentages and subsequently dominant coral type per zone by percentage
-
-```{r coral type % and dom CT/zone}
-
-FNGBR_DomSF <- FNGBR_Scaling
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, BrPerTot = ifelse(Scale_F > 0, 100*(BoverTot*Scale_F), "NA"))
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, MaPerTot = ifelse(Scale_F > 0, 100*(MoverTot*Scale_F), "NA"))
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, PPerTot = ifelse(Scale_F > 0, 100*(PoverTot*Scale_F), "NA"))
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, CTPerTot = BrPerTot + MaPerTot + PPerTot)
-
-unique(FNGBR_DomSF$CTPerTot)
-
-# Dominant CT by Percentage
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
-                                                      if_else((MaPerTot > BrPerTot) & (MaPerTot > PPerTot), "Massive",
-                                                      if_else((BrPerTot > MaPerTot) & (BrPerTot > PPerTot), "Branching",
-                                                              if_else((PPerTot > BrPerTot) & (PPerTot > MaPerTot), "Plate", "Mixed")))))
-
-unique(FNGBR_DomSF$DomByPer)
-
-# Dominant CT by percentage with 5% difference
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer5 = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
-                                                      if_else(((MaPerTot - BrPerTot) >=5) & ((MaPerTot - PPerTot) >= 5), "Massive",
-                                                      if_else(((BrPerTot - MaPerTot) >=5) & ((BrPerTot - PPerTot) >=5), "Branching",
-                                                              if_else(((PPerTot - BrPerTot) >=5) & ((PPerTot - MaPerTot) >=5), "Plate", 
-                                                                      if_else((BrPerTot <5) & (MaPerTot == 0) & ( PPerTot == 0), "Branching",
-                                                                              if_else((MaPerTot <5) & (BrPerTot == 0) & (PPerTot == 0), "Massive",
-                                                                                      if_else((PPerTot <5) & (MaPerTot == 0) & (BrPerTot ==0), "Plate",
-                                                                                              "Mixed"))))))))
-
-unique(FNGBR_DomSF$DomByPer5)
-
-# Dominant CT by percentage with 15% difference
-
-FNGBR_DomSF <- mutate(FNGBR_DomSF, DomByPer15 = if_else((BrPerTot == 0) & (MaPerTot == 0) & (PPerTot == 0), "None",
-                                                      if_else(((MaPerTot - BrPerTot) >= 15) & ((MaPerTot - PPerTot) >= 15), "Massive",
-                                                      if_else(((BrPerTot - MaPerTot) >=15) & ((BrPerTot - PPerTot) >=15), "Branching",
-                                                              if_else(((PPerTot - BrPerTot) >=15) & ((PPerTot - MaPerTot) >=15), "Plate", 
-                                                                      if_else((BrPerTot <15) & (MaPerTot == 0) & ( PPerTot == 0), "Branching",
-                                                                              if_else((MaPerTot <15) & (BrPerTot == 0) & (PPerTot == 0), "Massive",
-                                                                                      if_else((PPerTot <15) & (MaPerTot == 0) & (BrPerTot ==0), "Plate",
-                                                                                              "Mixed"))))))))
-
-unique(FNGBR_DomSF$DomByPer15)
-
-colnames(FNGBR_DomSF)
-
-# write to file
-
-FNGBR_DomSF <- write.csv(FNGBR_DomSF, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/FNQ/CTworking/FNGBR_DomCTbyPercentage.csv")
-
-```
-
-# Determine dominant substrate per zone and coral point ratios
-
-```{r coral point ratios & Dom substrate/zone}
-
-FNGBR_sub <- select(FNGBR_DomCTbyPercentage, "FID_FNQ_th":"DomByPer15")
-
-# Coral Pt ratios
-
-FNGBR_sub <- mutate(FNGBR_sub, DomCPts = if_else(DomByPer == "Branching", TotBrpts,
-                                                 if_else(DomByPer == "Massive", TotMapts, 
-                                                         if_else(DomByPer == "Plate", TotPpts, 0))))
-
-unique(FNGBR_sub$DomCPts)
-
-FNGBR_sub <- mutate(FNGBR_sub, DomCToverTotCT = (DomCPts/(TotBrpts + TotMapts + TotPpts)))
-
-FNGBR_sub <- mutate(FNGBR_sub, BroverTotCT = (TotBrpts/(TotBrpts + TotMapts + TotPpts)))
-
-FNGBR_sub <- mutate(FNGBR_sub, MaCToverTotCT = (TotMapts/(TotBrpts + TotMapts + TotPpts)))
-
-FNGBR_sub <- mutate(FNGBR_sub, PCToverTotCT = (TotPpts/(TotBrpts + TotMapts + TotPpts)))
-
-# Determine dominant substrate
-
-FNGBR_sub <- mutate(FNGBR_sub, DomSub = if_else(Con_Pts > TotSandPts, "Consolidated",
-                                                if_else(TotSandPts > Con_Pts, "Unconsolidated", "None")))
-
-unique(FNGBR_sub$DomSub)
-
-# write to csv
-
-FNGBR_sub <- write.csv(FNGBR_sub, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/DomPer/FNGBR_DomCT_DomSub.csv")
-
-```
-
-# write file for Dom CT Dom sub
-
-```{r read in data}
-
-FNGBR_DomCT <- FNGBR_DomCT_DomSub
-
-colnames(FNGBR_DomCT)
-
-FNGBR_DomCT_Domsub_JC <- select(FNGBR_DomCT, "PeriPt":"P_Long", "count", "TotPts", "TotBrpts", "BoverTot", "TotMapts", "MoverTot", "TotPpts", "PoverTot", "DomZone", "BrPerTot":"PPerTot", "CTPerTot", "DomByPer", "DomCPts":"PCToverTotCT", "Con_Pts", "TotSandPts", "DomSub")
-
-# write to file
-
-FNGBR_DomCT_Domsub_JC <- write.csv(FNGBR_DomCT_Domsub_JC, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/Finals/FNGBR_DomCT_DomSub20190520.csv")
-
-```
-
-# write file for benthic percentages
-
-```{r read in data}
-
-FNGBR_percentages <- FNGBR_DomCT_DomSub
-
-colnames(FNGBR_percentages)
-
-FNGBR_Per_JC <- select(FNGBR_percentages, "PeriPt":"P_Long", "C_Pts", "Con_Pts", "TotAlgPts", "TotSandPts", "TotOthPts", "C_Per", "Con_Per", "Alg_Per", "Uncon_Per", "OT_Per", "Scale_F")
-
-# write to file
-
-FNGBR_Per_JC <- write.csv(FNGBR_Per_JC, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/JC/Finals/FNGBR_Percentages20190520.csv")
-
-```
+```{r Summarise by PeriPt}

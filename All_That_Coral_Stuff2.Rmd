@@ -824,10 +824,257 @@ WGBRZone <- select(WGBRZone, "Name", "PeriPt":"P_Long", "Branching":"CT_Oth", "c
 WGBRZone <- write.csv(WGBRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WGBRDomCTbyPercentage20210326.csv")
 
 
+```
+
+
+## Create spreadsheet for CCMR
+
+```{r , echo=FALSE}
+# Read CSV files from folder
+
+# Make a copy
+CCMR_CN <- CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2
+
+CCMR_CN <- CCMR_CN %>% dplyr::mutate(id = row_number())
+
+# Make ID CCMR specific
+CCMR_CN <- CCMR_CN %>% dplyr::mutate(Region = as.character("CCMR_"))
+
+CCMR_CN <- CCMR_CN %>% unite("Pixel", Region:id, remove = FALSE)
 
 ```
 
 
+# CCMR
+
+```{r}
+# CCMR 
+# add coordinates to Legacy
+Legacy <- inner_join(percent_covers_Legacy,LegacyCoordinates, by ="Name") ## not CCMR
+
+# bind CCMR and Legacy
+CCMRleg <- bind_rows(CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2, Legacy) ## not CCMR
+
+# Copy data
+CCMRct <- CCMRleg
+
+CCMRtype <-
+  CCMR_CN %>%
+  rowwise()%>%
+  mutate(
+    Branching = (ACR_BRA + ACR_BRA_B_ + ACR_HIP + ACR_HIP_B_ + BRA_OTH + BRA_OTH_B_ +POCI+ POCI_B_ +POR_BRA+ POR_BRA_B_),
+    Plate = (ACR_PE + ACR_PE_B_+ BRA_TAB_Ac+ BRA_TAB_B_ + TFP_RDG_Al +TFP_RDG_B_ +TFP_RND_Al +TFP_RND_B_),
+    Massive = (BRA_DIG_Ac+ BRA_DIG_B_ +FAV_MUS +FAV_MUS_B_ +MASE_OTH +MASEoth_B_ + POR_ENC + POR_ENC_B_ + POR_MASS + POR_MAS_B_),
+    Mixed = (ACR_OTH +ACR_OTH_B_+ OTH_HC+ OTH_HC_B_), 
+    CT_Oth = (ALC_SF + ALC_SF_B_ + GORG  + GORG_B_ + MINV_COTS + MOB_INV + OTH_SF + OTH_SF_B_ + OTH_SINV + Sand + Other + F_TAPE + Unc + Unk + WATE + ALG_OTH + BMA_sand + CAL_CCA_DC + CAL_CCA_RB + Caul + Chlor + Cya_spe + Dicsp + EAM_DHC + EAM_RB + Lobph + MACR_Cal_H + MAECBS + Pad + Turbin + Seagrass))
+    
+CCMRtype <-
+  CCMRtype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(CCMRtype)
+unique(CCMRtype$CT_Tot)
+
+# Group according to Benthic Type
+CCMRtype <-
+  CCMRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (ACR_BRA + ACR_BRA_B_ + ACR_HIP + ACR_HIP_B_ + BRA_OTH + BRA_OTH_B_ +POCI+ POCI_B_ +POR_BRA+ POR_BRA_B_ + ACR_PE + ACR_PE_B_+ BRA_TAB_Ac+ BRA_TAB_B_ + TFP_RDG_Al +TFP_RDG_B_ +TFP_RND_Al +TFP_RND_B_ + BRA_DIG_Ac+ BRA_DIG_B_ +FAV_MUS +FAV_MUS_B_ +MASE_OTH +MASEoth_B_ + POR_ENC + POR_ENC_B_ + POR_MASS + POR_MAS_B_ + ACR_OTH +ACR_OTH_B_+ OTH_HC+ OTH_HC_B_),
+    SC = (ALC_SF + ALC_SF_B_ + GORG  + GORG_B_  + OTH_SF + OTH_SF_B_),
+    SD = (Sand + BMA_sand),
+    RB = (CAL_CCA_RB + EAM_RB),
+    RK = (CAL_CCA_DC + EAM_DHC),
+    AL = (ALG_OTH + Caul + Chlor + Cya_spe + Dicsp +  Lobph + MACR_Cal_H + MAECBS + Pad + Turbin),
+    OT = (MINV_COTS + MOB_INV  + OTH_SINV + Other + F_TAPE + Unc + Unk + WATE),
+    SG = (Seagrass))
+    
+CCMRtype <-
+  CCMRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(CCMRtype)
+unique(CCMRtype$Ben_Tot)
+
+# Select columns
+
+CCMR_type2 <- CCMRtype %>%
+  select("Name", "ACR_BRA":"Pixel", "Branching":"Ben_Tot")
+
+# not saved yet
+# write file
+ CCMR_Mitch <- write.csv(CCMR_Mitch, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRall_CT_ben.csv")
+
+```
+
+# Add perimeter points
+
+```{r}
+# Join datframes by "Name"
+
+CCMR_type2_Ppt <- inner_join(CCMR_type2, CCMR_Th_FD_P, by = "Name")
+
+colnames(CCMR_type2_Ppt)
+
+```
+
+# Summarise by PeriPoint
+
+```{r Summarise by PeriPt}
+
+# Count number of occurrences of each PeriPt and add that to the table
+
+CCMR_PPt <- CCMR_type2_Ppt %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(CCMR_PPt)
+
+CCMR_PPt <- select(CCMR_PPt, "Name", "PeriPt":"P_Long", "ACR_BRA":"Ben_Tot", "CCMR_uWSL9":"CCMR_Hsmea", "SLOPE", "count")
+
+# Summarise by PeriPt
+
+# Calculate Total coral type points per zone
+# when in doubt, add dplyr::
+
+CCMR_TotPts <- CCMR_PPt %>%
+  select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(CCMR_TotPts)
+
+# remove duplicated Ppt rows
+
+CCMRZone <- CCMR_TotPts %>% distinct(PeriPt, .keep_all = TRUE)
+
+colnames(CCMRZone)
+
+CCMRZone <- CCMRZone %>% select("Pixel", "PeriPt":"P_Long","count", "Branching":"CT_Oth","TotPts":"MixoverTot","CCMR_uWSL9":"SLOPE")
+
+colnames(CCMRZone)
+
+# Intermediate Save
+CCMRZone <- write.csv(CCMRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
+
+# Rename columns
+CCMRZone <- CCMRwaves
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSLm"] <- "uWSLmean"
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSL1"] <- "uWSL100"
+#CCMRZone <- rename(CCMRZone, uWSL100=CCMR_uWSL1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSL9"] <- "uWSL99"
+#CCMRZone <- rename(CCMRZone, uWSL99=CCMR_uWSL9)
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWS_1"] <- "uWSL90"
+#CCMRZone <- rename(CCMRZone, uWSL90=CCMR_uWS_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uonro"] <- "UonrootTmean"
+#CCMRZone <- rename(CCMRZone, UonrootTmean=CCMR_Uonro)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_1"] <- "UonrootT100"
+#CCMRZone <- rename(CCMRZone, UonrootT100=CCMR_Uon_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_2"] <- "UonrootT99"
+#CCMRZone <- rename(CCMRZone, UonrootT99=CCMR_Uon_2)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_3"] <- "UonrootT90"
+#CCMRZone <- rename(CCMRZone, UonrootT90=CCMR_Uon_3)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubedm"] <- "ubedmean"
+#CCMRZone <- rename(CCMRZone,ubedmean=CCMR_ubedm)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubed1"] <- "ubed100"
+#CCMRZone <- rename(CCMRZone,ubed100=CCMR_ubed1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubed9"] <- "ubed99"
+#CCMRZone <- rename(CCMRZone,ubed99=CCMR_ubed9)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ube_1"] <- "ubed90"
+#CCMRZone <- rename(CCMRZone,ubed90=CCMR_ube_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tpmea"] <- "Tpmean"
+#CCMRZone <- rename(CCMRZone,Tpmean=CCMR_Tpmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp100"] <- "Tp100"
+#CCMRZone <- rename(CCMRZone,Tp100=CCMR_Tp100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp99_"] <- "Tp99"
+#CCMRZone <- rename(CCMRZone,Tp99=CCMR_Tp99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp90_"] <- "Tp90"
+#CCMRZone <- rename(CCMRZone,Tp90=CCMR_Tp90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hsmea"] <- "Hsmean"
+#CCMRZone <- rename(CCMRZone,Hsmean=CCMR_Hsmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs100"] <- "Hs100"
+#CCMRZone <- rename(CCMRZone,Hs100=CCMR_Hs100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs99_"] <- "Hs99"
+#CCMRZone <- rename(CCMRZone,Hs99=CCMR_Hs99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs98_"] <- "Hs98"
+#CCMRZone <- rename(CCMRZone,Hs98=CCMR_Hs98_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs97_"] <- "Hs97"
+#CCMRZone <- rename(CCMRZone,Hs97=CCMR_Hs97_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs96_"] <- "Hs96"
+#CCMRZone <- rename(CCMRZone,Hs96=CCMR_Hs96_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs95_"] <- "Hs95"
+#CCMRZone <- rename(CCMRZone,Hs95=CCMR_Hs95_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs90_"] <- "Hs90"
+#CCMRZone <- rename(CCMRZone,Hs90=CCMR_Hs90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs80_"] <- "Hs80"
+#CCMRZone <- rename(CCMRZone,Hs80=CCMR_Hs80_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs70_"] <- "Hs70"
+#CCMRZone <- rename(CCMRZone,Hs70=CCMR_Hs70_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Efmea"] <- "Efmean"
+#CCMRZone <- rename(CCMRZone,Efmean=CCMR_Efmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef100"] <- "Ef100"
+#CCMRZone <- rename(CCMRZone,Ef100=CCMR_Ef100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef99_"] <- "Ef99"
+#CCMRZone <- rename(CCMRZone,Ef99=CCMR_Ef99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef90_"] <- "Ef90"
+#CCMRZone <- rename(CCMRZone,Ef90=CCMR_Ef90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Edmea"] <- "Edmean"
+#CCMRZone <- rename(CCMRZone,Edmean=CCMR_Edmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed100"] <- "Ed100"
+#CCMRZone <- rename(CCMRZone,Ed100=CCMR_Ed100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed99_"] <- "Ed99"
+#CCMRZone <- rename(CCMRZone,Ed99=CCMR_Ed99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed90_"] <- "Ed90"
+#CCMRZone <- rename(CCMRZone,Ed90=CCMR_Ed90_)
+
+#CCMRZone <- rename(CCMRZone,SLOPE=GBR_Sentin)
+colnames(CCMRZone)
+
+
+# Export CSV
+CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv") 
+
+#### DO NOT DO #####
+# Add row with numbers for Juan
+CCMR_pixels_ALL <- CCMR_pixels_ALL %>% add_row(uWSLmean=1,	uWSL100=2,	uWSL99=3,	uWSL90=4,	UonrootTmean=5,	UonrootT100=6,	UonrootT99=7,	UonrootT90=8,	ubedmean=9,	ubed100=10,	ubed99=11,	ubed90=12,	Tpmean=13,	Tp100=14,	Tp99=15,	Tp90=16,	Hsmean=17,	Hs100=18,	Hs99=19,	Hs98=20,	Hs97=21,	Hs96=22,	Hs95=23,	Hs90=24,	Hs80=25,	Hs70=26,	Efmean=27,	Ef100=28,	Ef99=29,	Ef90=30,	Edmean=31,	Ed100=32,	Ed99=33,	Ed90=34,	SLOPE=35, .before = 2)
+
+ 
+ 
+## DO NOT GO FURTHER IN THIS BLOCK
+## GO TO NEXT BLOCK
+
+
+### DID NOT DO FOR JUAN ####
+# Calculate fractional amount of coral types
+
+CCMR_TotPts <- dplyr::mutate(CCMR_TotPts, BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(CCMR_TotPts)
+
+# Determine Dominant Coral Type per zone
+
+WGBR_DomPerZone <- mutate(WGBR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(WGBR_DomPerZone$DomZone)
+
+head(WGBR_DomPerZone)
+
+colnames(WGBR_DomPerZone)
+
+# write to file
+
+WGBR_DomPerZone <- write.csv(WGBR_DomPerZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/WGBR_DomPerZone20210326.csv")
+
+
+```
 
 # Haven't used yet##########################
 # Determine Percentages of Coral, Algae, unconsolidated, consolidated

@@ -38,6 +38,7 @@ library(gmodels)
 library(dplyr)
 library(plyr)
 library(foreign)
+
 ##library(Rtools)
 ##library(jwbannister/seepsVeg)
 
@@ -708,7 +709,7 @@ FNGBR_Mitch <- FNGBRtype %>%
 ```
 
 # ########################################################
-# ########################################################
+# CAN'T DO THIS AS PPts REPEAT FOR EACH MANAGEMENT REGION
 # Group data according to peripoint and summarise coral type for WGBR
 
 ```{r Peripoint to each image}
@@ -825,12 +826,22 @@ WGBRZone <- write.csv(WGBRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBR
 
 
 ```
+# ################################
+# THIS IS WHAT NEEDS TO BE DONE
 
-
+# Separate processing by management region to alleviate Ppt duplication issues
 ## Create spreadsheet for CCMR
 
 ```{r , echo=FALSE}
 # Read CSV files from folder
+CCMR <- CCMRall_CT_ben
+# remove Legacy data
+Leg <- LegacyCoordinates
+# legacy data
+legacy_CN <- semi_join(CCMR, Leg, by = "Name")
+# CCMR data
+CCMR_CN <- anti_join(CCMR, Leg, by = "Name")
+
 
 # Make a copy
 CCMR_CN <- CCMR_Kalinda_Fleur_BENTHIC_DATA_submit_v2
@@ -906,9 +917,9 @@ CCMR_type2 <- CCMRtype %>%
 # Add perimeter points
 
 ```{r}
-# Join datframes by "Name"
+# Join dataframes by "Name"
 
-CCMR_type2_Ppt <- inner_join(CCMR_type2, CCMR_Th_FD_P, by = "Name")
+CCMR_type2_Ppt <- inner_join(CCMR_CN, CCMR_Th_FD_P, by = "Name")
 
 colnames(CCMR_type2_Ppt)
 
@@ -925,7 +936,7 @@ CCMR_PPt <- CCMR_type2_Ppt %>%
 
 colnames(CCMR_PPt)
 
-CCMR_PPt <- select(CCMR_PPt, "Name", "PeriPt":"P_Long", "ACR_BRA":"Ben_Tot", "CCMR_uWSL9":"CCMR_Hsmea", "SLOPE", "count")
+#CCMR_PPt <- select(CCMR_PPt, "Name", "PeriPt":"P_Long", "ACR_BRA":"Ben_Tot", "CCMR_uWSL9":"CCMR_Hsmea", "SLOPE", "count")
 
 # Summarise by PeriPt
 
@@ -933,27 +944,56 @@ CCMR_PPt <- select(CCMR_PPt, "Name", "PeriPt":"P_Long", "ACR_BRA":"Ben_Tot", "CC
 # when in doubt, add dplyr::
 
 CCMR_TotPts <- CCMR_PPt %>%
-  select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
+  #select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
   dplyr::group_by(PeriPt)%>%
   dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
 
 colnames(CCMR_TotPts)
 
+# Calculate fractional amount of coral types
+
+CCMR_TotPts <- dplyr::mutate(CCMR_TotPts, BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(CCMR_TotPts)
+
+# Determine Dominant Coral Type per zone
+
+CCMR_DomPerZone <- mutate(CCMR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(CCMR_DomPerZone$DomZone)
+
+head(CCMR_DomPerZone)
+
+colnames(CCMR_DomPerZone)
+
+# check
+CDom <- CCMR_DomPerZone%>%
+  select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
+
+# Summarise Benthic type per Perimeter Point
+CCMR_DomPerZone2 <- CCMR_DomPerZone %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
+
+# select summarised columns
+CCMR_DomPerZone2 <- CCMR_DomPerZone2%>%
+  select("Pixel", "PeriPt":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "CCMR_uWSL9":"CCMR_Hsmea","SLOPE")
+
 # remove duplicated Ppt rows
 
-CCMRZone <- CCMR_TotPts %>% distinct(PeriPt, .keep_all = TRUE)
+CCMR_DomPerZone2 <- CCMR_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
-colnames(CCMRZone)
-
-CCMRZone <- CCMRZone %>% select("Pixel", "PeriPt":"P_Long","count", "Branching":"CT_Oth","TotPts":"MixoverTot","CCMR_uWSL9":"SLOPE")
-
-colnames(CCMRZone)
+colnames(CCMR_DomPerZone2)
 
 # Intermediate Save
-CCMRZone <- write.csv(CCMRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
+#CCMR_DomPerZone2 <- write.csv(CCMR_DomPerZone2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRPptsummary.csv")
 
 # Rename columns
-CCMRZone <- CCMRwaves
+CCMRZone <- CCMR_DomPerZone2
 names(CCMRZone)[names(CCMRZone) == "CCMR_uWSLm"] <- "uWSLmean"
 names(CCMRZone)[names(CCMRZone) == "CCMR_uWSL1"] <- "uWSL100"
 #CCMRZone <- rename(CCMRZone, uWSL100=CCMR_uWSL1)
@@ -1027,7 +1067,7 @@ colnames(CCMRZone)
 
 
 # Export CSV
-CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
+CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMR_Ppt_waves_summary.csv")
 ```
 
 

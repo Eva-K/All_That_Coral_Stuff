@@ -906,7 +906,7 @@ unique(CCMRtype$Ben_Tot)
 # Select columns
 
 CCMR_type2 <- CCMRtype %>%
-  select("Name", "ACR_BRA":"Pixel", "Branching":"Ben_Tot")
+  select("Name","Pixel", "ACR_BRA":"Ben_Tot")
 
 # not saved yet
 # write file
@@ -944,7 +944,6 @@ colnames(CCMR_PPt)
 # when in doubt, add dplyr::
 
 CCMR_TotPts <- CCMR_PPt %>%
-  #select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
   dplyr::group_by(PeriPt)%>%
   dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
 
@@ -970,7 +969,7 @@ head(CCMR_DomPerZone)
 
 colnames(CCMR_DomPerZone)
 
-# check
+# check what columns are there
 CDom <- CCMR_DomPerZone%>%
   select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
 
@@ -981,7 +980,7 @@ CCMR_DomPerZone2 <- CCMR_DomPerZone %>%
 
 # select summarised columns
 CCMR_DomPerZone2 <- CCMR_DomPerZone2%>%
-  select("Pixel", "PeriPt":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "CCMR_uWSL9":"CCMR_Hsmea","SLOPE")
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot",  "DomZone", "CCMR_uWSL9":"CCMR_Hsmea","SLOPE")
 
 # remove duplicated Ppt rows
 
@@ -989,8 +988,6 @@ CCMR_DomPerZone2 <- CCMR_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
 colnames(CCMR_DomPerZone2)
 
-# Intermediate Save
-#CCMR_DomPerZone2 <- write.csv(CCMR_DomPerZone2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRPptsummary.csv")
 
 # Rename columns
 CCMRZone <- CCMR_DomPerZone2
@@ -1071,7 +1068,7 @@ CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBent
 ```
 
 
-# SGBR: ALL including Heron 2018
+# SGBR: ALL including Heron 2018 - CAN'T DO - need to split MKY and TSV
 
 ```{r Southern GBR ALL}
 # Southern GBR ALL
@@ -1128,7 +1125,7 @@ unique(SGBRtype$Ben_Tot)
 # Select columns
 
 SGBRtype <- SGBRtype %>%
-  select("Name":"Seagrass", "Branching":"Ben_Tot")
+  select("Name", "Branching":"Ben_Tot")
 
 
 ```
@@ -1225,7 +1222,7 @@ names(TSVps)[names(TSVps) == "P_Long.x"] <- "P_Long"
 colnames(TSVps)
 TSVps <- select(TSVps, "Name":"SLOPE")
 
-# Join TSV to MKY/HR
+# MKY/HR
 names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "image_name"] <- "Name"
 names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootTmean"] <- "UonrootTmean"
 names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT99"] <- "UonrootT99"
@@ -1265,11 +1262,13 @@ MKYps2 <- MKY_HR_Th_FD_P_W_S_20200526%>%
 # write to file
 
 TSVps2 <- write.csv(TSVps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/TSVwavesPpts.csv") 
+colnames(TSVeverythingCT)
 
 MKYps2 <- write.csv(MKYps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYwavesPpts.csv") 
-
+colnames(MKYeverythingCT)
 ```
 
+# Already done....
 # Join Perimeter points to field data by image names
 
 ```{r}
@@ -1289,18 +1288,21 @@ MKY_FD <- write.csv(MKY_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBent
 
 ```{r Summarise by PeriPt}
 # Read in data and select columns
-colnames(TSVeverythingCT)
-TSV <- TSVeverythingCT
+
 
 # Count number of occurrences of each PeriPt and add that to the table
 
-TSV <- TSV %>%
+TSV <- TSVeverythingCT %>%
   group_by(PeriPt)%>%
   dplyr::mutate(count = n())
 
 colnames(TSV)
 
-TSV <- select(TSV, "Pixel", "Name", "PeriPt":"P_Long", "ACR-BRA":"Ben_Tot", "Ed90":"SLOPE", "count")
+MKY <- MKYeverythingCT %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(MKY)
 
 # Summarise by PeriPt
 
@@ -1308,11 +1310,16 @@ TSV <- select(TSV, "Pixel", "Name", "PeriPt":"P_Long", "ACR-BRA":"Ben_Tot", "Ed9
 # when in doubt, add dplyr::
 
 TSV_TotPts <- TSV %>%
- # select("Name":"P_Long", "Branching":"CT_Oth" ,"PeriPt": "count")%>%
   dplyr::group_by(PeriPt)%>%
   dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
 
 colnames(TSV_TotPts)
+
+MKY_TotPts <- MKY %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(MKY_TotPts)
 
 # Calculate fractional amount of coral types
 
@@ -1322,22 +1329,307 @@ TSV_TotPts <- TSV_TotPts%>%
 
 colnames(TSV_TotPts)
 
+MKY_TotPts <- MKY_TotPts%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(MKY_TotPts)
+
+# Determine Dominant Coral Type per zone
+
+TSV_DomPerZone <- mutate(TSV_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(TSV_DomPerZone$DomZone)
+
+colnames(TSV_DomPerZone)
+
+MKY_DomPerZone <- mutate(MKY_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(MKY_DomPerZone$DomZone)
+
+colnames(MKY_DomPerZone)
+
+# check what columns are there
+TDom <- TSV_DomPerZone%>%
+  select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
+
+# Summarise Benthic type per Perimeter Point
+TSV_DomPerZone2 <- TSV_DomPerZone %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
+
+MKY_DomPerZone2 <- MKY_DomPerZone %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
+
+colnames(MKY_DomPerZone2)
+
+# select summarised columns
+TSV_DomPerZone2 <- TSV_DomPerZone2%>%
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "Ed90":"SLOPE")
+
+MKY_DomPerZone2 <- MKY_DomPerZone2%>%
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "uWSLmean":"Edmean","SLOPE")
+
 # remove duplicated Ppt rows
 
-TSVZone <- TSV_TotPts %>% distinct(PeriPt, .keep_all = TRUE)
+TSVZone <- TSV_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
 colnames(TSVZone)
 
-TSVZone <- TSVZone %>% select("Pixel", "PeriPt":"P_Long","count", "Branching":"CT_Oth","TotPts":"MixoverTot","Ed90":"SLOPE")
+MKYZone <- MKY_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
-colnames(TSVZone)
-
-# Intermediate Save
-TSVZone <- write.csv(TSVZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/TSVwaves.csv")
+colnames(MKYZone)
 
 
-# Export CSV
-SGBRpts<-write.csv(SGBRpts, file="C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/CCMRwaves.csv")
+#  Save
+TSVZone <- write.csv(TSVZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/TSV_Ppt_waves_summary.csv")
+
+MKYZone <- write.csv(MKYZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/MKY_Ppt_waves_summary.csv")
+
 ```
 
+# FNGBR plus Legacy
+
+```{r}
+# Read in data
+
+FNGBR_CN <- FNGBR
+colnames(FNGBR_CN)
+colnames(legacy_CN)
+
+
+# write to file
+legacy_CN <- write.csv(legacy_CN, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralNet/Legacy_CN.csv")
+
+# Legacy is processed for Mitch
+# Process FNGBR_CN to Ben_Tot
+
+# Group data according to spreadsheet - Coral Type
+FNGBRtype <-
+  FNGBR_CN %>%
+  rowwise()%>%
+  mutate( 
+    Branching = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B`),
+    Plate = (`ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B`),
+    Massive = (`BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B`),
+    Mixed = (`ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    CT_Oth = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `MINV_COTS` + `MOB-INV` + `OTH-SF` + `OTH-SF-B` + `OTH-SINV` + `Sand` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE` + `ALG_OTH` + `BMA_sand` + `CAL_CCA_DC` + `CAL_CCA_RB` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` + `EAM_DHC` + `EAM_RB` + `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin` + `Seagrass`))
+    
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(FNGBRtype)
+unique(FNGBRtype$CT_Tot)
+
+# Group according to Benthic Type
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B` + `ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B` + `BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B` + `ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    SC = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `OTH-SF` + `OTH-SF-B`),
+    SD = (`Sand` + `BMA_sand`),
+    RB = (`CAL_CCA_RB` + `EAM_RB`),
+    RK = (`CAL_CCA_DC` + `EAM_DHC`),
+    AL = (`ALG_OTH` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` +  `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin`),
+    OT = (`MINV_COTS` + `MOB-INV`  + `OTH-SINV` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE`),
+    SG = (`Seagrass`))
+    
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(FNGBRtype)
+unique(FNGBRtype$Ben_Tot)
+
+# Join Legacy and FNGBR
+FNGBRtype <- FNGBRtype%>%
+  select("Name", "Branching":"Ben_Tot")
+
+colnames(Legacy_CN)
+Leg_type <- Legacy_CN%>%
+  select("Name", "Branching":"Ben_Tot")
+
+FNGBR_all <- bind_rows(FNGBRtype, Leg_type)
+
+# Join to Ppt and wave data
+FNGBRps <- inner_join(FNGBR_all, FNQLeg_Th_FD_Peri_Wave_Slope, by = "Name")
+
+colnames(FNGBRps)
+
+# Rename columns
+colnames(FNGBRps)
+names(FNGBRps)[names(FNGBRps) == "uWSLmean_R"] <- "uWSLmean"
+names(FNGBRps)[names(FNGBRps) == "uWSL100_Ra"] <- "uWSL100"
+#TSVps <- rename(TSVps, uWSL100=TSV_uWSL1)
+names(FNGBRps)[names(FNGBRps) == "uWSL99_Ras"] <- "uWSL99"
+#FNGBRps <- rename(FNGBRps, uWSL99=TSV_uWSL9)
+names(FNGBRps)[names(FNGBRps) == "uWSL90_Ras"] <- "uWSL90"
+#FNGBRps <- rename(FNGBRps, uWSL90=TSV_uWS_1)
+names(FNGBRps)[names(FNGBRps) == "UonrootTme"] <- "UonrootTmean"
+#FNGBRps <- rename(FNGBRps, UonrootTmean=TSV_Uonro)
+names(FNGBRps)[names(FNGBRps) == "UonrootT10"] <- "UonrootT100"
+#FNGBRps <- rename(FNGBRps, UonrootT100=TSV_Uon_1)
+#names(FNGBRps)[names(FNGBRps) == "UonrootT99"] <- "UonrootT99"
+#FNGBRps <- rename(FNGBRps, UonrootT99=TSV_Uon_2)
+#names(FNGBRps)[names(FNGBRps) == "TSV_Uonr_3"] <- "UonrootT90"
+#FNGBRps <- rename(FNGBRps, UonrootT90=TSV_Uon_3)
+names(FNGBRps)[names(FNGBRps) == "Ubedmean_R"] <- "ubedmean"
+#FNGBRps <- rename(FNGBRps,ubedmean=TSV_ubedm)
+names(FNGBRps)[names(FNGBRps) == "Ubed100_Ra"] <- "ubed100"
+#FNGBRps <- rename(FNGBRps,ubed100=TSV_ubed1)
+names(FNGBRps)[names(FNGBRps) == "Ubed99_Ras"] <- "ubed99"
+#FNGBRps <- rename(FNGBRps,ubed99=TSV_ubed9)
+names(FNGBRps)[names(FNGBRps) == "Ubed90_Ras"] <- "ubed90"
+#FNGBRps <- rename(FNGBRps,ubed90=TSV_ube_1)
+names(FNGBRps)[names(FNGBRps) == "Tpmean_Ras"] <- "Tpmean"
+#FNGBRps <- rename(FNGBRps,Tpmean=TSV_Tpmea)
+names(FNGBRps)[names(FNGBRps) == "Tp100_Rast"] <- "Tp100"
+#FNGBRps <- rename(FNGBRps,Tp100=TSV_Tp100)
+names(FNGBRps)[names(FNGBRps) == "Tp99_Raste"] <- "Tp99"
+#FNGBRps <- rename(FNGBRps,Tp99=TSV_Tp99_)
+names(FNGBRps)[names(FNGBRps) == "Tp90_Raste"] <- "Tp90"
+#FNGBRps <- rename(FNGBRps,Tp90=TSV_Tp90_)
+names(FNGBRps)[names(FNGBRps) == "Hsmean_Ras"] <- "Hsmean"
+#FNGBRps <- rename(FNGBRps,Hsmean=TSV_Hsmea)
+names(FNGBRps)[names(FNGBRps) == "Hs100_Rast"] <- "Hs100"
+#FNGBRps <- rename(FNGBRps,Hs100=TSV_Hs100)
+names(FNGBRps)[names(FNGBRps) == "Hs99_Raste"] <- "Hs99"
+#FNGBRps <- rename(FNGBRps,Hs99=TSV_Hs99_)
+names(FNGBRps)[names(FNGBRps) == "Hs98_Raste"] <- "Hs98"
+#FNGBRps <- rename(FNGBRps,Hs98=TSV_Hs98_)
+names(FNGBRps)[names(FNGBRps) == "Hs97_Raste"] <- "Hs97"
+#FNGBRps <- rename(FNGBRps,Hs97=TSV_Hs97_)
+names(FNGBRps)[names(FNGBRps) == "Hs96_Raste"] <- "Hs96"
+#FNGBRps <- rename(FNGBRps,Hs96=TSV_Hs96_)
+names(FNGBRps)[names(FNGBRps) == "FGBR_Hs95_"] <- "Hs95"
+#FNGBRps <- rename(FNGBRps,Hs95=TSV_Hs95_)
+names(FNGBRps)[names(FNGBRps) == "Hs90_Raste"] <- "Hs90"
+#FNGBRps <- rename(FNGBRps,Hs90=TSV_Hs90_)
+names(FNGBRps)[names(FNGBRps) == "Hs80_Raste"] <- "Hs80"
+#FNGBRps <- rename(FNGBRps,Hs80=TSV_Hs80_)
+names(FNGBRps)[names(FNGBRps) == "Hs70_Raste"] <- "Hs70"
+#FNGBRps <- rename(FNGBRps,Hs70=TSV_Hs70_)
+names(FNGBRps)[names(FNGBRps) == "Efmean_Ras"] <- "Efmean"
+#FNGBRps <- rename(FNGBRps,Efmean=TSV_Efmea)
+names(FNGBRps)[names(FNGBRps) == "Ef100_Rast"] <- "Ef100"
+#FNGBRps <- rename(FNGBRps,Ef100=TSV_Ef100)
+names(FNGBRps)[names(FNGBRps) == "Ef99_Raste"] <- "Ef99"
+#FNGBRps <- rename(FNGBRps,Ef99=TSV_Ef99_)
+names(FNGBRps)[names(FNGBRps) == "Ef90_Raste"] <- "Ef90"
+#FNGBRps <- rename(FNGBRps,Ef90=TSV_Ef90_)
+names(FNGBRps)[names(FNGBRps) == "Edmean_Ras"] <- "Edmean"
+#FNGBRps <- rename(FNGBRps,Edmean=TSV_Edmea)
+names(FNGBRps)[names(FNGBRps) == "Ed100_Rast"] <- "Ed100"
+#FNGBRps <- rename(FNGBRps,Ed100=TSV_Ed100)
+names(FNGBRps)[names(FNGBRps) == "Ed99_Raste"] <- "Ed99"
+#FNGBRps <- rename(FNGBRps,Ed99=TSV_Ed99_)
+names(FNGBRps)[names(FNGBRps) == "Ed90_Raste"] <- "Ed90"
+#FNGBRps <- rename(FNGBRps,Ed90=TSV_Ed90_)
+names(FNGBRps)[names(FNGBRps) == "FNQ_Leg_SL"] <- "SLOPE"
+#FNGBRps <- rename(FNGBRps,SLOPE=GBR_Sentin)
+
+colnames(FNGBRps)
+
+FNGBRps <- select(FNGBRps, "Name":"Ben_Tot","PeriPt":"SLOPE")
+
+# Make unique names 
+# Make ID specific
+FNGBRps <- FNGBRps %>% dplyr::mutate(Region = as.character("FNGBR_"))
+
+FNGBRps <- FNGBRps %>% dplyr::mutate(id = row_number())
+
+FNGBRps <- FNGBRps %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(FNGBRps)
+unique(FNGBRps$Pixel)
+
+FNGBRps2 <- FNGBRps%>%
+  select("Name":"Pixel" )
+
+```
+
+# Summarise by PeriPoint
+
 ```{r Summarise by PeriPt}
+
+# Count number of occurrences of each PeriPt and add that to the table
+
+FNQ <- FNGBRps2 %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(FNQ)
+
+# Summarise by PeriPt
+
+# Calculate Total coral type points per zone
+# when in doubt, add dplyr::
+
+FNGBR_TotPts <- FNQ %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(FNGBR_TotPts)
+
+
+# Calculate fractional amount of coral types
+
+FNGBR_TotPts <- FNGBR_TotPts%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(FNGBR_TotPts)
+
+# Determine Dominant Coral Type per zone
+
+FNGBR_DomPerZone <- mutate(FNGBR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(FNGBR_DomPerZone$DomZone)
+
+colnames(FNGBR_DomPerZone)
+
+
+# check what columns are there
+FDom <- FNGBR_DomPerZone%>%
+  select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
+
+# Summarise Benthic type per Perimeter Point
+FNGBR_DomPerZone2 <- FNGBR_DomPerZone %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
+
+colnames(FNGBR_DomPerZone2)
+
+# select summarised columns
+FNGBR_DomPerZone2 <- FNGBR_DomPerZone2 %>%
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "Ed90":"SLOPE")
+
+# remove duplicated Ppt rows
+
+FNGBRZone <- FNGBR_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
+
+colnames(FNGBRZone)
+
+#  Save
+FNGBRZone <- write.csv(FNGBRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/PerRegion2021/FNGBR_Ppt_waves_summary.csv")
+
+```
+

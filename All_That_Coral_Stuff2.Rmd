@@ -1229,6 +1229,8 @@ names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonroo
 names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT100"] <- "UonrootT100"
 names(MKY_HR_Th_FD_P_W_S_20200526)[names(MKY_HR_Th_FD_P_W_S_20200526) == "uonrootT90"] <- "UonrootT90"
 
+colnames((MKY_HR_Th_FD_P_W_S_20200526))
+
 MKY_HR_Th_FD_P_W_S_20200526 <- select(MKY_HR_Th_FD_P_W_S_20200526, "Name":"Edmean")
 
 colnames(TSVps)
@@ -1252,9 +1254,10 @@ MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% dplyr::mutate(id 
 
 MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% unite("Pixel", Region:id, remove = FALSE)
 colnames(MKY_HR_Th_FD_P_W_S_20200526)
+unique(MKY_HR_Th_FD_P_W_S_20200526$Pixel)
 
 MKYps2 <- MKY_HR_Th_FD_P_W_S_20200526%>%
-  select("Name":"P_Long", "SLOPE":"Edmean","Pixel" )
+  select("Name":"Pixel" )
 
 # Bind Rows - no - need to do separately
 #SGBR_CT <- bind_rows(MKYps2, TSVps)
@@ -1265,6 +1268,7 @@ TSVps2 <- write.csv(TSVps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBent
 colnames(TSVeverythingCT)
 
 MKYps2 <- write.csv(MKYps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYwavesPpts.csv") 
+
 colnames(MKYeverythingCT)
 ```
 
@@ -1274,7 +1278,10 @@ colnames(MKYeverythingCT)
 ```{r}
 TSV_FD <- inner_join(SGBRtype, TSVwavesPpts, by = "Name")
 
-MKY_FD <- inner_join(SGBRtype, MKYwavesPpts, by = "Name")
+MKY_FD <- inner_join(SGBRtype, MKYps2, by = "Name")
+
+colnames(MKY_FD)
+unique(MKY_FD$P_Long)
 
 # write to file
 
@@ -1298,11 +1305,12 @@ TSV <- TSVeverythingCT %>%
 
 colnames(TSV)
 
-MKY <- MKYeverythingCT %>%
+MKY <- MKY_FD %>%
   group_by(PeriPt)%>%
   dplyr::mutate(count = n())
 
 colnames(MKY)
+unique(MKY$P_Long)
 
 # Summarise by PeriPt
 
@@ -1379,6 +1387,8 @@ TSV_DomPerZone2 <- TSV_DomPerZone2%>%
 MKY_DomPerZone2 <- MKY_DomPerZone2%>%
   select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "uWSLmean":"Edmean","SLOPE")
 
+unique(MKY_DomPerZone2$P_Long)
+
 # remove duplicated Ppt rows
 
 TSVZone <- TSV_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
@@ -1388,6 +1398,7 @@ colnames(TSVZone)
 MKYZone <- MKY_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
 colnames(MKYZone)
+unique(MKYZone$P_Long)
 
 
 #  Save

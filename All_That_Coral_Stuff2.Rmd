@@ -1072,11 +1072,37 @@ CCMRZone<-write.csv(CCMRZone, file="C:/Users/uqekovac/Documents/R/Coding/GBRBent
 
 # SGBR: ALL including Heron 2018 - CAN'T DO - need to split MKY and TSV
 
+# Heron digit issues
+
+```{r}
+names(Heron_Th_FD_int)[names(Heron_Th_FD_int) == "FID_Heron_"] <- "FID_Theiss"
+
+HeronNames <- select(Heron_Th_FD_int, "FID_Theiss", "Name")
+
+colnames(SGBRall)
+
+# remove Heron from MKY
+
+# legacy data
+Heron_CN <- semi_join(SGBRall, HeronNames, by = "Name")
+colnames(Heron_CN)
+
+# MKY data
+MKY_CN <- anti_join(SGBRall, HeronNames,  by = "Name")
+colnames(MKY_CN)
+
+# Perimeter Points for Heron
+
+Heron_points <- inner_join(Heron_peri_points, HeronNames, by = "FID_Theiss")
+
+```
+
+
 ```{r Southern GBR ALL}
 # Southern GBR ALL
 # Read in data and make a copy
 
-SGBR <- SGBRall
+SGBR <- bind_rows(MKY_CN, Heron_CN)
 
 # Group data according to spreadsheet - Coral Type
 SGBRtype <-
@@ -1235,8 +1261,95 @@ colnames((MKY_HR_Th_FD_P_W_S_20200526))
 
 MKY_HR_Th_FD_P_W_S_20200526 <- select(MKY_HR_Th_FD_P_W_S_20200526, "Name":"Edmean")
 
-colnames(TSVps)
+# Remove Heron
+MKY_points <- anti_join(MKY_HR_Th_FD_P_W_S_20200526, HeronNames,  by = "Name")
+
+colnames(Heron_points)
+colnames(MKY_points)
+
+# Rename Heron wave parameters
+
+names(Heron_points)[names(Heron_points) == "uWSLmean_R"] <- "uWSLmean"
+names(Heron_points)[names(Heron_points) == "uWSL100_Ra"] <- "uWSL100"
+#TSVps <- rename(TSVps, uWSL100=TSV_uWSL1)
+names(Heron_points)[names(Heron_points) == "uWSL99_Ras"] <- "uWSL99"
+#Heron_points <- rename(Heron_points, uWSL99=TSV_uWSL9)
+names(Heron_points)[names(Heron_points) == "uWSL90_Ras"] <- "uWSL90"
+#Heron_points <- rename(Heron_points, uWSL90=TSV_uWS_1)
+names(Heron_points)[names(Heron_points) == "uonrootTme"] <- "UonrootTmean"
+#Heron_points <- rename(Heron_points, UonrootTmean=TSV_Uonro)
+names(Heron_points)[names(Heron_points) == "uonrootT10"] <- "UonrootT100"
+#Heron_points <- rename(Heron_points, UonrootT100=TSV_Uon_1)
+names(Heron_points)[names(Heron_points) == "uonrootT99"] <- "UonrootT99"
+#Heron_points <- rename(Heron_points, UonrootT99=TSV_Uon_2)
+names(Heron_points)[names(Heron_points) == "uonrootT90"] <- "UonrootT90"
+#Heron_points <- rename(Heron_points, UonrootT90=TSV_Uon_3)
+names(Heron_points)[names(Heron_points) == "ubedmean_R"] <- "ubedmean"
+#Heron_points <- rename(Heron_points,ubedmean=TSV_ubedm)
+names(Heron_points)[names(Heron_points) == "ubed100_Ra"] <- "ubed100"
+#Heron_points <- rename(Heron_points,ubed100=TSV_ubed1)
+names(Heron_points)[names(Heron_points) == "ubed99_Ras"] <- "ubed99"
+#Heron_points <- rename(Heron_points,ubed99=TSV_ubed9)
+names(Heron_points)[names(Heron_points) == "ubed90_Ras"] <- "ubed90"
+#Heron_points <- rename(Heron_points,ubed90=TSV_ube_1)
+names(Heron_points)[names(Heron_points) == "Tpmean_Ras"] <- "Tpmean"
+#Heron_points <- rename(Heron_points,Tpmean=TSV_Tpmea)
+names(Heron_points)[names(Heron_points) == "Tp100_Rast"] <- "Tp100"
+#Heron_points <- rename(Heron_points,Tp100=TSV_Tp100)
+names(Heron_points)[names(Heron_points) == "Tp99_Raste"] <- "Tp99"
+#Heron_points <- rename(Heron_points,Tp99=TSV_Tp99_)
+names(Heron_points)[names(Heron_points) == "Tp90_Raste"] <- "Tp90"
+#Heron_points <- rename(Heron_points,Tp90=TSV_Tp90_)
+names(Heron_points)[names(Heron_points) == "Hsmean_Ras"] <- "Hsmean"
+#Heron_points <- rename(Heron_points,Hsmean=TSV_Hsmea)
+names(Heron_points)[names(Heron_points) == "Hs100_Rast"] <- "Hs100"
+#Heron_points <- rename(Heron_points,Hs100=TSV_Hs100)
+names(Heron_points)[names(Heron_points) == "Hs99_Raste"] <- "Hs99"
+#Heron_points <- rename(Heron_points,Hs99=TSV_Hs99_)
+names(Heron_points)[names(Heron_points) == "Hs98_Raste"] <- "Hs98"
+#Heron_points <- rename(Heron_points,Hs98=TSV_Hs98_)
+names(Heron_points)[names(Heron_points) == "Hs97_Raste"] <- "Hs97"
+#Heron_points <- rename(Heron_points,Hs97=TSV_Hs97_)
+names(Heron_points)[names(Heron_points) == "Hs96_Raste"] <- "Hs96"
+#Heron_points <- rename(Heron_points,Hs96=TSV_Hs96_)
+names(Heron_points)[names(Heron_points) == "Mackay_Hs9"] <- "Hs95"
+#Heron_points <- rename(Heron_points,Hs95=TSV_Hs95_)
+names(Heron_points)[names(Heron_points) == "Hs90_Raste"] <- "Hs90"
+#Heron_points <- rename(Heron_points,Hs90=TSV_Hs90_)
+names(Heron_points)[names(Heron_points) == "Hs80_Raste"] <- "Hs80"
+#Heron_points <- rename(Heron_points,Hs80=TSV_Hs80_)
+names(Heron_points)[names(Heron_points) == "Hs70_Raste"] <- "Hs70"
+#Heron_points <- rename(Heron_points,Hs70=TSV_Hs70_)
+names(Heron_points)[names(Heron_points) == "Efmean_Ras"] <- "Efmean"
+#Heron_points <- rename(Heron_points,Efmean=TSV_Efmea)
+names(Heron_points)[names(Heron_points) == "Ef100_Rast"] <- "Ef100"
+#Heron_points <- rename(Heron_points,Ef100=TSV_Ef100)
+names(Heron_points)[names(Heron_points) == "Ef99_Raste"] <- "Ef99"
+#Heron_points <- rename(Heron_points,Ef99=TSV_Ef99_)
+names(Heron_points)[names(Heron_points) == "Ef90_Raste"] <- "Ef90"
+#Heron_points <- rename(Heron_points,Ef90=TSV_Ef90_)
+names(Heron_points)[names(Heron_points) == "Edmean_Ras"] <- "Edmean"
+#Heron_points <- rename(Heron_points,Edmean=TSV_Edmea)
+names(Heron_points)[names(Heron_points) == "Ed100_Rast"] <- "Ed100"
+#Heron_points <- rename(Heron_points,Ed100=TSV_Ed100)
+names(Heron_points)[names(Heron_points) == "Ed99_Raste"] <- "Ed99"
+#Heron_points <- rename(Heron_points,Ed99=TSV_Ed99_)
+names(Heron_points)[names(Heron_points) == "Ed90_Raste"] <- "Ed90"
+#Heron_points <- rename(Heron_points,Ed90=TSV_Ed90_)
+names(Heron_points)[names(Heron_points) == "Heron_SLOP"] <- "SLOPE"
+
+colnames(Heron_points)
+Heron_points <- Heron_points%>%
+  select("SLOPE":"P_Long", "PeriPt":"Name")
+colnames(Heron_points)
 colnames(MKY_HR_Th_FD_P_W_S_20200526)
+
+# Combine Heron and MKY
+MKYHRpts <- bind_rows(MKY_points, Heron_points)
+
+# write to CSV
+MKYHRpts <- write.csv(MKYHRpts, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYHRpts.csv")
+
 colnames(SGBRtype)
 
 # Make unique names for TSV and MKY/HR
@@ -1250,16 +1363,19 @@ colnames(TSVps)
 TSVps2 <- TSVps%>%
   select("Name":"P_Long", "Ed90":"SLOPE","Pixel" )
 
-MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% dplyr::mutate(Region = as.character("MKY_"))
+MKYHRpts <- MKYHRpts %>% dplyr::mutate(Region = as.character("MKY_"))
 
-MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% dplyr::mutate(id = row_number())
+MKYHRpts <- MKYHRpts %>% dplyr::mutate(id = row_number())
 
-MKY_HR_Th_FD_P_W_S_20200526 <- MKY_HR_Th_FD_P_W_S_20200526 %>% unite("Pixel", Region:id, remove = FALSE)
-colnames(MKY_HR_Th_FD_P_W_S_20200526)
-unique(MKY_HR_Th_FD_P_W_S_20200526$Pixel)
+MKYHRpts <- MKYHRpts %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(MKYHRpts)
+unique(MKYHRpts$Pixel)
 
-MKYps2 <- MKY_HR_Th_FD_P_W_S_20200526%>%
-  select("Name":"Pixel" )
+MKYps2 <- MKYHRpts%>%
+  select("Name", "SLOPE":"Pixel" )
+
+MKYcor <- inner_join(MKYps2, MKY_probs, by = "Name")
+colnames(MKYcor)
 
 # Bind Rows - no - need to do separately
 #SGBR_CT <- bind_rows(MKYps2, TSVps)
@@ -1269,9 +1385,9 @@ MKYps2 <- MKY_HR_Th_FD_P_W_S_20200526%>%
 TSVps2 <- write.csv(TSVps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/TSVwavesPpts.csv") 
 colnames(TSVeverythingCT)
 
-MKYps2 <- write.csv(MKYps2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYwavesPpts.csv") 
+MKYcor <- write.csv(MKYcor, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYwavesPpts.csv") 
 
-colnames(MKYeverythingCT)
+colnames(MKYwavesPpts)
 ```
 
 # Already done....
@@ -1279,7 +1395,9 @@ colnames(MKYeverythingCT)
 
 ```{r}
 TSV_FD <- inner_join(SGBRtype, TSVwavesPpts, by = "Name")
-
+MKYps2 <- MKYwavesPpts
+colnames(MKYps2)
+unique(MKYps2$P_Long)
 MKY_FD <- inner_join(SGBRtype, MKYps2, by = "Name")
 
 colnames(MKY_FD)
@@ -1290,6 +1408,9 @@ unique(MKY_FD$P_Long)
 TSV_FD <- write.csv(TSV_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/TSVeverythingCT.csv") 
 
 MKY_FD <- write.csv(MKY_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/MKYeverythingCT.csv") 
+
+colnames(MKYeverythingCT)
+unique(MKYeverythingCT$P_Long)
 
 ```
 
@@ -1307,7 +1428,7 @@ TSV <- TSVeverythingCT %>%
 
 colnames(TSV)
 
-MKY <- MKY_FD %>%
+MKY <- MKYeverythingCT %>%
   group_by(PeriPt)%>%
   dplyr::mutate(count = n())
 
@@ -1406,7 +1527,7 @@ options(digits = 10)
 #  Save
 TSVZone <- write.csv(TSVZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/TSV_Ppt_waves_summary.csv")
 
-MKYZone <- write.csv(MKYZone,  file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/MKY_Ppt_waves_summary.csv")
+MKYZone <- write.csv(MKYZone,  file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/PerRegion2021/MKY_Ppt_waves_summary.csv")
 
 ```
 
@@ -1417,7 +1538,7 @@ MKYZone <- write.csv(MKYZone,  file = "C:/Users/uqekovac/Documents/R/Coding/GBRB
 
 FNGBR_CN <- FNGBR
 colnames(FNGBR_CN)
-colnames(legacy_CN)
+colnames(Legacy_CN)
 
 
 # write to file
@@ -1562,16 +1683,16 @@ FNGBRps <- select(FNGBRps, "Name":"Ben_Tot","PeriPt":"SLOPE")
 
 # Make unique names 
 # Make ID specific
-FNGBRps <- FNGBRps %>% dplyr::mutate(Region = as.character("FNGBR_"))
+FNGBRps2 <- FNGBRps %>% dplyr::mutate(Region = as.character("FNGBR_"))
 
-FNGBRps <- FNGBRps %>% dplyr::mutate(id = row_number())
+FNGBRps2 <- FNGBRps2 %>% dplyr::mutate(id = row_number())
 
-FNGBRps <- FNGBRps %>% unite("Pixel", Region:id, remove = FALSE)
-colnames(FNGBRps)
-unique(FNGBRps$Pixel)
+FNGBRps2 <- FNGBRps2 %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(FNGBRps2)
+unique(FNGBRps2$Pixel)
 
-FNGBRps2 <- FNGBRps%>%
-  select("Name":"Pixel" )
+FNGBRps3 <- FNGBRps2%>%
+  select("Name":"SLOPE","Pixel" )
 
 ```
 
@@ -1581,7 +1702,7 @@ FNGBRps2 <- FNGBRps%>%
 
 # Count number of occurrences of each PeriPt and add that to the table
 
-FNQ <- FNGBRps2 %>%
+FNQ <- FNGBRps3 %>%
   group_by(PeriPt)%>%
   dplyr::mutate(count = n())
 
@@ -1633,7 +1754,7 @@ colnames(FNGBR_DomPerZone2)
 
 # select summarised columns
 FNGBR_DomPerZone2 <- FNGBR_DomPerZone2 %>%
-  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "Ed90":"SLOPE")
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "DomZone", "uWSLmean":"SLOPE")
 
 # remove duplicated Ppt rows
 
@@ -1641,8 +1762,46 @@ FNGBRZone <- FNGBR_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 
 colnames(FNGBRZone)
 
+# Join wave parameters
+
 #  Save
 FNGBRZone <- write.csv(FNGBRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/PerRegion2021/FNGBR_Ppt_waves_summary.csv")
+
+```
+
+# Fix SGBR coordinates
+
+```{r}
+
+names(MKY_Theiss_peri_int)[names(MKY_Theiss_peri_int) == "FID_MKY_pe"] <- "PeriPt"
+
+# why am I not just using this.....????
+names(MKY_Theiss_FD_int)[names(MKY_Theiss_FD_int) == "Name"] <- "image_name"
+
+names(MKY_Theiss_FD_int)[names(MKY_Theiss_FD_int) == "Image"] <- "Name"
+
+MKY_probs <- MKY_Theiss_FD_int%>%
+  select("Name","PeriPt", "P_Lat":"P_Long")
+
+```
+ 
+# Bind all GBR together
+
+```{r}
+# Read in files and check col names
+CCMR <- CCMR_Ppt_waves_summary
+MKY <- MKY_Ppt_waves_summary
+TSV <- TSV_Ppt_waves_summary
+FNGBR <- FNGBR_Ppt_waves_summary
+
+colnames(FNGBR)
+
+WholeGBR <- bind_rows(CCMR, MKY, TSV, FNGBR)
+
+# write to file
+
+WholeGBR <- write.csv(WholeGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/PerRegion2021/WholeGBR_Ppt_waves_summary.csv")
+
 
 ```
 

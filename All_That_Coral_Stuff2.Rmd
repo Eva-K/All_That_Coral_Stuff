@@ -23,6 +23,7 @@ install.packages("gmodels")
 install.packages("dplyr")
 install.packages("plyr")
 install.packages("foreign")
+install.packages("readr")
 ##install.packages('Rtools')
 ##install.packages('jwbannister/seepsVeg')
 
@@ -38,6 +39,7 @@ library(gmodels)
 library(dplyr)
 library(plyr)
 library(foreign)
+library(readr)
 
 ##library(Rtools)
 ##library(jwbannister/seepsVeg)
@@ -1400,11 +1402,11 @@ MKYZone <- MKY_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
 colnames(MKYZone)
 unique(MKYZone$P_Long)
 
-
+options(digits = 10)
 #  Save
 TSVZone <- write.csv(TSVZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/TSV_Ppt_waves_summary.csv")
 
-MKYZone <- write.csv(MKYZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/MKY_Ppt_waves_summary.csv")
+MKYZone <- write.csv(MKYZone,  file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/MKY_Ppt_waves_summary.csv")
 
 ```
 

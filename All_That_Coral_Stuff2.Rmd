@@ -1804,7 +1804,9 @@ WholeGBR <- write.csv(WholeGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBR
 
 
 ```
+
 # Now try with new ReefCloud Data
+
 ```{r Reefcloud - New - all classes}
 # Read in file
 colnames(GBR_ReefCloud_export_20210331)
@@ -1815,8 +1817,16 @@ tail(GBR_ReefCloud_export_20210331)
 
 nrow(GBR_ReefCloud_export_20210331) # 11685960
 nrow(GBR_ReefCloud_export_20210331)/50 # 233719.2
+unique(GBR_ReefCloud_export_20210331$collection_method)
+
+# Try to find duplicates
+ReefD <- GBR_ReefCloud_export_20210331%>%
+  select("image_name", "point_num")
+
+RC_duplicated <- ReefD[duplicated(ReefD),]
 
 
+# Proceed to processing
 ReefC <- GBR_ReefCloud_export_20210331 %>%
   select("image_name":"machine_classification")
 nrow(ReefC)# 11685960
@@ -1830,10 +1840,88 @@ ReefC <- ReefC_20210331
 unique(ReefC$machine_classification)
 
 # Sum the annotation classes per image
-ReefC_sum <- ReefC%>%
-  dplyr::count(image_name, machine_classification)
+ReefC_sum2 <- ReefC%>%
+  dplyr::count(image_name, machine_classification)%>%
+  tidyr::spread(key = machine_classification, value = n)
+
+  ReefC_sum2 <- ReefC_sum2 %>% replace(is.na(.), 0)
+  
+  # write to file
+
+ReefC_sum2 <- write.csv(ReefC_sum2, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/ReefCloud/ReefC_summary_202100331.csv")
+
+Reef <- ReefC_summary_202100331
+
+colnames(Reef)
+unique(Reef$V1)
 
 
+```
+
+
+
+# Summarise for CT
+```{r}
+
+Reeftype <-
+  Reef %>%
+  rowwise()%>%
+  mutate( 
+    Branching = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + #`ACR-HIP-B` +
+                   `BRA_OTH` + #`BRA_OTH-B` + 
+                   `POCI` + `POCI-B` + `POR-BRA` #+ #`POR-BRA-B`
+                   ),
+    Plate = (`ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + #`TFP_RDG-B` + 
+               `TFP_RND_Al` #+ `TFP_RND-B`
+             ),
+    Massive = (`BRA_DIG_Ac` + #`BRA_DIG_B` +
+                 `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + #`MASEoth-B` +
+                 `POR-ENC` + #`POR-ENC-B` + 
+                 `POR-MASS` #+ `POR-MAS-B`
+               ),
+    Mixed = (`ACR-OTH` + #`ACR-OTH-B` + 
+               `OTH-HC` #+ `OTH-HC-B`
+             ),
+    CT_Oth = (`ALC-SF` + `ALC-SF-B` + `GORG`  + #`GORG-B` +
+                `MINV_COTS` + `MOB-INV` + `OTH-SF` + #`OTH-SF-B` + 
+                `OTH-SINV` + `Sand` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE` + `ALG_OTH` + `BMA_sand` + `CAL_CCA_DC` + `CAL_CCA_RB` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` + `EAM_DHC` + `EAM_RB` + #`Lobph` +
+                `MACR_Cal_H` + #`MAECBS` +
+                `Pad` #+ `Turbin` + `Seagrass`
+                ))
+ 
+
+   
+Reeftype <-
+  Reeftype %>%
+  rowwise()%>%
+  mutate( 
+    CT_Tot = (`Branching` + `Massive` + `Plate` + `Mixed` + `CT_Oth`)) 
+
+colnames(Reeftype)
+unique(Reeftype$CT_Tot)
+
+# Group according to Benthic Type
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    HC = (`ACR-BRA` + `ACR-BRA-B` + `ACR-HIP` + `ACR-HIP-B` + `BRA_OTH` + `BRA_OTH-B` + `POCI` + `POCI-B` + `POR-BRA` + `POR-BRA-B` + `ACR-PE` + `ACR-PE-B` + `BRA_TAB-Ac` + `BRA_TAB-B` + `TFP_RDG_Al` + `TFP_RDG-B` + `TFP_RND_Al` + `TFP_RND-B` + `BRA_DIG_Ac` + `BRA_DIG_B` + `FAV-MUS` + `FAV-MUS-B` + `MASE_OTH` + `MASEoth-B` + `POR-ENC` + `POR-ENC-B` + `POR-MASS` + `POR-MAS-B` + `ACR-OTH` + `ACR-OTH-B` + `OTH-HC` + `OTH-HC-B`),
+    SC = (`ALC-SF` + `ALC-SF-B` + `GORG`  + `GORG-B` + `OTH-SF` + `OTH-SF-B`),
+    SD = (`Sand` + `BMA_sand`),
+    RB = (`CAL_CCA_RB` + `EAM_RB`),
+    RK = (`CAL_CCA_DC` + `EAM_DHC`),
+    AL = (`ALG_OTH` + `Caul` + `Chlor` + `Cya_spe` + `Dicsp` +  `Lobph` + `MACR_Cal_H` + `MAECBS` + `Pad` + `Turbin`),
+    OT = (`MINV_COTS` + `MOB-INV`  + `OTH-SINV` + `Other` + `TAPE` + `Unc` + `Unk` + `WATE`),
+    SG = (`Seagrass`))
+    
+FNGBRtype <-
+  FNGBRtype %>%
+  rowwise()%>%
+  mutate( 
+    Ben_Tot = (`HC` + `SC` + `SD` + `RB` + `RK` + `AL` + `OT` + `SG`)) 
+
+colnames(FNGBRtype)
+unique(FNGBRtype$Ben_Tot)
 
 ```
 

@@ -1804,4 +1804,36 @@ WholeGBR <- write.csv(WholeGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBR
 
 
 ```
+# Now try with new ReefCloud Data
+```{r Reefcloud - New - all classes}
+# Read in file
+colnames(GBR_ReefCloud_export_20210331)
+
+unique(GBR_ReefCloud_export_20210331$human_classification) # No human annotations
+
+tail(GBR_ReefCloud_export_20210331)
+
+nrow(GBR_ReefCloud_export_20210331) # 11685960
+nrow(GBR_ReefCloud_export_20210331)/50 # 233719.2
+
+
+ReefC <- GBR_ReefCloud_export_20210331 %>%
+  select("image_name":"machine_classification")
+nrow(ReefC)# 11685960
+
+# write to file
+
+ReefC <- write.csv(ReefC, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/ReefCloud/ReefC_20210331.csv")
+
+ReefC <- ReefC_20210331
+
+unique(ReefC$machine_classification)
+
+# Sum the annotation classes per image
+ReefC_sum <- ReefC%>%
+  dplyr::count(image_name, machine_classification)
+
+
+
+```
 

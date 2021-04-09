@@ -1548,6 +1548,7 @@ Heron_FD <- write.csv(Heron_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBR
 # Read in Data
 
 HeronCT <- HeroneverythingCT
+colnames(HeronCT)
 
 # Count number of occurrences of each PeriPt and add that to the table
 
@@ -1591,17 +1592,19 @@ unique(HR_DomPerZone$DomZone)
 colnames(HR_DomPerZone)
 
 # check what columns are there
-HRDom <- HR_DomPerZone%>%
-  select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
+#HRDom <- HR_DomPerZone%>%
+#  select("Pixel", "PeriPt", "P_Lat":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
 
 # Summarise Benthic type per Perimeter Point
 HR_DomPerZone2 <- HR_DomPerZone %>%
   dplyr::group_by(PeriPt)%>%
   dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
 
+colnames((HR_DomPerZone2))
+
 # select summarised columns
 HR_DomPerZone2 <- HR_DomPerZone2%>%
-  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "Ed90":"SLOPE")
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "DomZone", "SLOPE":"Edmean")
 
 # remove duplicated Ppt rows
 
@@ -1614,6 +1617,15 @@ options(digits = 10)
 #  Save
 HRZone <- write.csv(HRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/HR_Ppt_waves_summary.csv")
 
+# Join to the remainder of the GBR
+
+HR_Ppt_waves_summary <- HR_Ppt_waves_summary%>%
+  select("Pixel":"Edmean")
+GBR <- bind_rows(WholeGBR_Ppt_waves_summary_out, HR_Ppt_waves_summary)
+
+# write to file
+
+GBR <- write.csv(GBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/PerRegion2021/WGBR_Heron_out.csv") 
 
 ```
 

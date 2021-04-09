@@ -1093,7 +1093,7 @@ colnames(MKY_CN)
 
 # Perimeter Points for Heron
 
-Heron_points <- inner_join(Heron_peri_points, HeronNames, by = "FID_Theiss")
+Heron_FD <- inner_join(Heron_peri_points, HeronNames, by = "FID_Theiss")
 
 ```
 
@@ -1404,7 +1404,8 @@ unique(Heron$id)
 
 Heron <- Heron %>% dplyr::mutate(Region = as.character("Heron_"))
 
-Herontype <- Herontype %>% unite("Pixel", Region:id, remove = FALSE)
+colnames(Heron)
+Heron <- Heron %>% unite("Pixel", Region:id, remove = FALSE)
 
 # Group data according to spreadsheet - Coral Type
 Herontype <-
@@ -1454,8 +1455,164 @@ unique(Herontype$Ben_Tot)
 Herontype <- Herontype %>%
   select("Name", "Pixel", "Branching":"Ben_Tot")
 
-# Join to Perimeter points
+# Perimeter points
+names(Heron_Th_FD_int)[names(Heron_Th_FD_int) == "FID_Heron_"] <- "FID_Theiss"
+
+HeronNames <- select(Heron_Th_FD_int, "FID_Theiss", "Name")
+
+# Perimeter Points for Heron
+
+Heron_points <- inner_join(Heron_peri_points, HeronNames, by = "FID_Theiss")
+
+
+# Join FD to Perimeter points
 Heron_FD <- inner_join(Herontype, Heron_points, by = "Name")
+
+# Rename Heron wave parameters
+
+names(Heron_FD)[names(Heron_FD) == "uWSLmean_R"] <- "uWSLmean"
+names(Heron_FD)[names(Heron_FD) == "uWSL100_Ra"] <- "uWSL100"
+#TSVps <- rename(TSVps, uWSL100=TSV_uWSL1)
+names(Heron_FD)[names(Heron_FD) == "uWSL99_Ras"] <- "uWSL99"
+#Heron_FD <- rename(Heron_FD, uWSL99=TSV_uWSL9)
+names(Heron_FD)[names(Heron_FD) == "uWSL90_Ras"] <- "uWSL90"
+#Heron_FD <- rename(Heron_FD, uWSL90=TSV_uWS_1)
+names(Heron_FD)[names(Heron_FD) == "uonrootTme"] <- "UonrootTmean"
+#Heron_FD <- rename(Heron_FD, UonrootTmean=TSV_Uonro)
+names(Heron_FD)[names(Heron_FD) == "uonrootT10"] <- "UonrootT100"
+#Heron_FD <- rename(Heron_FD, UonrootT100=TSV_Uon_1)
+names(Heron_FD)[names(Heron_FD) == "uonrootT99"] <- "UonrootT99"
+#Heron_FD <- rename(Heron_FD, UonrootT99=TSV_Uon_2)
+names(Heron_FD)[names(Heron_FD) == "uonrootT90"] <- "UonrootT90"
+#Heron_FD <- rename(Heron_FD, UonrootT90=TSV_Uon_3)
+names(Heron_FD)[names(Heron_FD) == "ubedmean_R"] <- "ubedmean"
+#Heron_FD <- rename(Heron_FD,ubedmean=TSV_ubedm)
+names(Heron_FD)[names(Heron_FD) == "ubed100_Ra"] <- "ubed100"
+#Heron_FD <- rename(Heron_FD,ubed100=TSV_ubed1)
+names(Heron_FD)[names(Heron_FD) == "ubed99_Ras"] <- "ubed99"
+#Heron_FD <- rename(Heron_FD,ubed99=TSV_ubed9)
+names(Heron_FD)[names(Heron_FD) == "ubed90_Ras"] <- "ubed90"
+#Heron_FD <- rename(Heron_FD,ubed90=TSV_ube_1)
+names(Heron_FD)[names(Heron_FD) == "Tpmean_Ras"] <- "Tpmean"
+#Heron_FD <- rename(Heron_FD,Tpmean=TSV_Tpmea)
+names(Heron_FD)[names(Heron_FD) == "Tp100_Rast"] <- "Tp100"
+#Heron_FD <- rename(Heron_FD,Tp100=TSV_Tp100)
+names(Heron_FD)[names(Heron_FD) == "Tp99_Raste"] <- "Tp99"
+#Heron_FD <- rename(Heron_FD,Tp99=TSV_Tp99_)
+names(Heron_FD)[names(Heron_FD) == "Tp90_Raste"] <- "Tp90"
+#Heron_FD <- rename(Heron_FD,Tp90=TSV_Tp90_)
+names(Heron_FD)[names(Heron_FD) == "Hsmean_Ras"] <- "Hsmean"
+#Heron_FD <- rename(Heron_FD,Hsmean=TSV_Hsmea)
+names(Heron_FD)[names(Heron_FD) == "Hs100_Rast"] <- "Hs100"
+#Heron_FD <- rename(Heron_FD,Hs100=TSV_Hs100)
+names(Heron_FD)[names(Heron_FD) == "Hs99_Raste"] <- "Hs99"
+#Heron_FD <- rename(Heron_FD,Hs99=TSV_Hs99_)
+names(Heron_FD)[names(Heron_FD) == "Hs98_Raste"] <- "Hs98"
+#Heron_FD <- rename(Heron_FD,Hs98=TSV_Hs98_)
+names(Heron_FD)[names(Heron_FD) == "Hs97_Raste"] <- "Hs97"
+#Heron_FD <- rename(Heron_FD,Hs97=TSV_Hs97_)
+names(Heron_FD)[names(Heron_FD) == "Hs96_Raste"] <- "Hs96"
+#Heron_FD <- rename(Heron_FD,Hs96=TSV_Hs96_)
+names(Heron_FD)[names(Heron_FD) == "Mackay_Hs9"] <- "Hs95"
+#Heron_FD <- rename(Heron_FD,Hs95=TSV_Hs95_)
+names(Heron_FD)[names(Heron_FD) == "Hs90_Raste"] <- "Hs90"
+#Heron_FD <- rename(Heron_FD,Hs90=TSV_Hs90_)
+names(Heron_FD)[names(Heron_FD) == "Hs80_Raste"] <- "Hs80"
+#Heron_FD <- rename(Heron_FD,Hs80=TSV_Hs80_)
+names(Heron_FD)[names(Heron_FD) == "Hs70_Raste"] <- "Hs70"
+#Heron_FD <- rename(Heron_FD,Hs70=TSV_Hs70_)
+names(Heron_FD)[names(Heron_FD) == "Efmean_Ras"] <- "Efmean"
+#Heron_FD <- rename(Heron_FD,Efmean=TSV_Efmea)
+names(Heron_FD)[names(Heron_FD) == "Ef100_Rast"] <- "Ef100"
+#Heron_FD <- rename(Heron_FD,Ef100=TSV_Ef100)
+names(Heron_FD)[names(Heron_FD) == "Ef99_Raste"] <- "Ef99"
+#Heron_FD <- rename(Heron_FD,Ef99=TSV_Ef99_)
+names(Heron_FD)[names(Heron_FD) == "Ef90_Raste"] <- "Ef90"
+#Heron_FD <- rename(Heron_FD,Ef90=TSV_Ef90_)
+names(Heron_FD)[names(Heron_FD) == "Edmean_Ras"] <- "Edmean"
+#Heron_FD <- rename(Heron_FD,Edmean=TSV_Edmea)
+names(Heron_FD)[names(Heron_FD) == "Ed100_Rast"] <- "Ed100"
+#Heron_FD <- rename(Heron_FD,Ed100=TSV_Ed100)
+names(Heron_FD)[names(Heron_FD) == "Ed99_Raste"] <- "Ed99"
+#Heron_FD <- rename(Heron_FD,Ed99=TSV_Ed99_)
+names(Heron_FD)[names(Heron_FD) == "Ed90_Raste"] <- "Ed90"
+#Heron_FD <- rename(Heron_FD,Ed90=TSV_Ed90_)
+names(Heron_FD)[names(Heron_FD) == "Heron_SLOP"] <- "SLOPE"
+
+colnames(Heron_FD)
+
+# write to file
+
+Heron_FD <- write.csv(Heron_FD, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/HeroneverythingCT.csv") 
+
+# Read in Data
+
+HeronCT <- HeroneverythingCT
+
+# Count number of occurrences of each PeriPt and add that to the table
+
+HeronCT <- HeronCT %>%
+  group_by(PeriPt)%>%
+  dplyr::mutate(count = n())
+
+colnames(HeronCT)
+
+# Summarise by PeriPt
+
+# Calculate Total coral type points per zone
+# when in doubt, add dplyr::
+
+HR_TotPts <- HeronCT %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotPts = count*100, TotBrpts = sum(Branching), TotMapts = sum(Massive), TotPpts = sum(Plate),  TotMix = sum(Mixed), TotOthPts = sum(CT_Oth))
+
+colnames(HR_TotPts)
+
+
+# Calculate fractional amount of coral types
+
+HR_TotPts <- HR_TotPts%>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(BoverTot = (TotBrpts/TotPts), MoverTot = (TotMapts/TotPts), PoverTot = (TotPpts/TotPts), MixoverTot = (TotMix/TotPts))
+
+colnames(HR_TotPts)
+
+
+# Determine Dominant Coral Type per zone
+
+HR_DomPerZone <- mutate(HR_TotPts, DomZone = ifelse((BoverTot == 0) & (MoverTot == 0) & (PoverTot == 0) & (MixoverTot == 0), "None",
+                                                           ifelse(((BoverTot) > (MoverTot)) & ((BoverTot) > (PoverTot)) & ((BoverTot) > (MixoverTot)),  "Branching",                                               
+        ifelse(((MoverTot) > (BoverTot)) & ((MoverTot) > (PoverTot)) & ((MoverTot) > (MixoverTot)), "Massive", 
+               ifelse(((PoverTot) > (BoverTot)) & ((PoverTot) > (MoverTot)) & ((PoverTot) > (MixoverTot)), "Plate", 
+                      "Mixed")))))
+
+unique(HR_DomPerZone$DomZone)
+
+colnames(HR_DomPerZone)
+
+# check what columns are there
+HRDom <- HR_DomPerZone%>%
+  select("Pixel", "PeriPt":"P_Long","count", "Branching":"Ben_Tot", "TotPts": "MixoverTot")
+
+# Summarise Benthic type per Perimeter Point
+HR_DomPerZone2 <- HR_DomPerZone %>%
+  dplyr::group_by(PeriPt)%>%
+  dplyr::mutate(TotHC = sum(HC), TotSC = sum(SC), TotSD = sum(SD),  TotRB = sum(RB), TotRK = sum(RK), TotAL = sum(AL), TotOT = sum(OT), TotSG = sum(SG))
+
+# select summarised columns
+HR_DomPerZone2 <- HR_DomPerZone2%>%
+  select("Pixel", "P_Lat":"P_Long","count","TotHC":"TotSG", "TotPts": "MixoverTot", "DomZone", "Ed90":"SLOPE")
+
+# remove duplicated Ppt rows
+
+HRZone <- HR_DomPerZone2 %>% distinct(PeriPt, .keep_all = TRUE)
+
+colnames(HRZone)
+
+
+options(digits = 10)
+#  Save
+HRZone <- write.csv(HRZone, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/CoralTypeMapping/Mitch2021/HR_Ppt_waves_summary.csv")
 
 
 ```

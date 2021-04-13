@@ -150,3 +150,17 @@ colnames(WholeGBR_images)
 
 ```
 
+# Coordinates for Carolina
+
+```{r}
+# Read in files
+
+# Bind Rows
+GBR_Whole <- bind_rows(X20191201_GBRFarNorth,X2017_GBRLegacy,X20170123_CCMR_Kalinda_Dive,X20170123_CCMR_Snorkel,X20170425_CCMR_FieldTrip, SGBR,Heron_2018)
+
+colnames(GBR_Whole)
+
+# write to file
+GBR_WHole <- write.csv(GBR_Whole, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Coordinates/2021/ALL/Carolina/GBR_WholeLatsLongs.csv")
+```
+

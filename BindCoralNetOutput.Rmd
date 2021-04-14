@@ -198,4 +198,229 @@ Out <- bind_rows(X20190530_RossR_Dive,X20190530_RossR_Snorkel,X20190531_Stucco_D
 Out_CN <- inner_join(Out, X201906_SGBR)
 
 ```
+# Back to Perimeter points
+```{r}
+# FNQ waves
+# correct param names
+FNGBRps <- FNQLeg_Th_FD_Peri_Wave_Slope
+rm(FNQLeg_Th_FD_Peri_Wave_Slope)
+# Rename columns
+colnames(FNGBRps)
+names(FNGBRps)[names(FNGBRps) == "uWSLmean_R"] <- "uWSLmean"
+names(FNGBRps)[names(FNGBRps) == "uWSL100_Ra"] <- "uWSL100"
+#TSVps <- rename(TSVps, uWSL100=TSV_uWSL1)
+names(FNGBRps)[names(FNGBRps) == "uWSL99_Ras"] <- "uWSL99"
+#FNGBRps <- rename(FNGBRps, uWSL99=TSV_uWSL9)
+names(FNGBRps)[names(FNGBRps) == "uWSL90_Ras"] <- "uWSL90"
+#FNGBRps <- rename(FNGBRps, uWSL90=TSV_uWS_1)
+names(FNGBRps)[names(FNGBRps) == "UonrootTme"] <- "UonrootTmean"
+#FNGBRps <- rename(FNGBRps, UonrootTmean=TSV_Uonro)
+names(FNGBRps)[names(FNGBRps) == "UonrootT10"] <- "UonrootT100"
+#FNGBRps <- rename(FNGBRps, UonrootT100=TSV_Uon_1)
+#names(FNGBRps)[names(FNGBRps) == "UonrootT99"] <- "UonrootT99"
+#FNGBRps <- rename(FNGBRps, UonrootT99=TSV_Uon_2)
+#names(FNGBRps)[names(FNGBRps) == "TSV_Uonr_3"] <- "UonrootT90"
+#FNGBRps <- rename(FNGBRps, UonrootT90=TSV_Uon_3)
+names(FNGBRps)[names(FNGBRps) == "Ubedmean_R"] <- "ubedmean"
+#FNGBRps <- rename(FNGBRps,ubedmean=TSV_ubedm)
+names(FNGBRps)[names(FNGBRps) == "Ubed100_Ra"] <- "ubed100"
+#FNGBRps <- rename(FNGBRps,ubed100=TSV_ubed1)
+names(FNGBRps)[names(FNGBRps) == "Ubed99_Ras"] <- "ubed99"
+#FNGBRps <- rename(FNGBRps,ubed99=TSV_ubed9)
+names(FNGBRps)[names(FNGBRps) == "Ubed90_Ras"] <- "ubed90"
+#FNGBRps <- rename(FNGBRps,ubed90=TSV_ube_1)
+names(FNGBRps)[names(FNGBRps) == "Tpmean_Ras"] <- "Tpmean"
+#FNGBRps <- rename(FNGBRps,Tpmean=TSV_Tpmea)
+names(FNGBRps)[names(FNGBRps) == "Tp100_Rast"] <- "Tp100"
+#FNGBRps <- rename(FNGBRps,Tp100=TSV_Tp100)
+names(FNGBRps)[names(FNGBRps) == "Tp99_Raste"] <- "Tp99"
+#FNGBRps <- rename(FNGBRps,Tp99=TSV_Tp99_)
+names(FNGBRps)[names(FNGBRps) == "Tp90_Raste"] <- "Tp90"
+#FNGBRps <- rename(FNGBRps,Tp90=TSV_Tp90_)
+names(FNGBRps)[names(FNGBRps) == "Hsmean_Ras"] <- "Hsmean"
+#FNGBRps <- rename(FNGBRps,Hsmean=TSV_Hsmea)
+names(FNGBRps)[names(FNGBRps) == "Hs100_Rast"] <- "Hs100"
+#FNGBRps <- rename(FNGBRps,Hs100=TSV_Hs100)
+names(FNGBRps)[names(FNGBRps) == "Hs99_Raste"] <- "Hs99"
+#FNGBRps <- rename(FNGBRps,Hs99=TSV_Hs99_)
+names(FNGBRps)[names(FNGBRps) == "Hs98_Raste"] <- "Hs98"
+#FNGBRps <- rename(FNGBRps,Hs98=TSV_Hs98_)
+names(FNGBRps)[names(FNGBRps) == "Hs97_Raste"] <- "Hs97"
+#FNGBRps <- rename(FNGBRps,Hs97=TSV_Hs97_)
+names(FNGBRps)[names(FNGBRps) == "Hs96_Raste"] <- "Hs96"
+#FNGBRps <- rename(FNGBRps,Hs96=TSV_Hs96_)
+names(FNGBRps)[names(FNGBRps) == "FGBR_Hs95_"] <- "Hs95"
+#FNGBRps <- rename(FNGBRps,Hs95=TSV_Hs95_)
+names(FNGBRps)[names(FNGBRps) == "Hs90_Raste"] <- "Hs90"
+#FNGBRps <- rename(FNGBRps,Hs90=TSV_Hs90_)
+names(FNGBRps)[names(FNGBRps) == "Hs80_Raste"] <- "Hs80"
+#FNGBRps <- rename(FNGBRps,Hs80=TSV_Hs80_)
+names(FNGBRps)[names(FNGBRps) == "Hs70_Raste"] <- "Hs70"
+#FNGBRps <- rename(FNGBRps,Hs70=TSV_Hs70_)
+names(FNGBRps)[names(FNGBRps) == "Efmean_Ras"] <- "Efmean"
+#FNGBRps <- rename(FNGBRps,Efmean=TSV_Efmea)
+names(FNGBRps)[names(FNGBRps) == "Ef100_Rast"] <- "Ef100"
+#FNGBRps <- rename(FNGBRps,Ef100=TSV_Ef100)
+names(FNGBRps)[names(FNGBRps) == "Ef99_Raste"] <- "Ef99"
+#FNGBRps <- rename(FNGBRps,Ef99=TSV_Ef99_)
+names(FNGBRps)[names(FNGBRps) == "Ef90_Raste"] <- "Ef90"
+#FNGBRps <- rename(FNGBRps,Ef90=TSV_Ef90_)
+names(FNGBRps)[names(FNGBRps) == "Edmean_Ras"] <- "Edmean"
+#FNGBRps <- rename(FNGBRps,Edmean=TSV_Edmea)
+names(FNGBRps)[names(FNGBRps) == "Ed100_Rast"] <- "Ed100"
+#FNGBRps <- rename(FNGBRps,Ed100=TSV_Ed100)
+names(FNGBRps)[names(FNGBRps) == "Ed99_Raste"] <- "Ed99"
+#FNGBRps <- rename(FNGBRps,Ed99=TSV_Ed99_)
+names(FNGBRps)[names(FNGBRps) == "Ed90_Raste"] <- "Ed90"
+#FNGBRps <- rename(FNGBRps,Ed90=TSV_Ed90_)
+names(FNGBRps)[names(FNGBRps) == "FNQ_Leg_SL"] <- "SLOPE"
+#FNGBRps <- rename(FNGBRps,SLOPE=GBR_Sentin)
+
+colnames(FNGBRps)
+
+FNGBRselect <- FNGBRps%>%
+  select("Name","PeriPt":"SLOPE")
+
+rm(FNGBRps)
+
+
+# SGBR
+colnames(SGBRwavesPpts)
+SGBRselect <- SGBRwavesPpts%>%
+  select("Name":"Edmean")
+rm(SGBRwavesPpts)
+
+# TSV
+colnames(TSVwavesPpts)
+TSVselect <- TSVwavesPpts%>%
+  select("Name":"SLOPE")
+rm(TSVwavesPpts)
+
+# MKY/HR
+colnames(MKYHRpts)
+MKYselect <- MKYHRpts  %>%
+  select("Name":"Edmean")
+rm(MKYHRpts)
+
+#CCMR
+colnames(CCMR_Th_FD_P)
+# Rename columns
+CCMRZone <- CCMR_Th_FD_P
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSLm"] <- "uWSLmean"
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSL1"] <- "uWSL100"
+#CCMRZone <- rename(CCMRZone, uWSL100=CCMR_uWSL1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWSL9"] <- "uWSL99"
+#CCMRZone <- rename(CCMRZone, uWSL99=CCMR_uWSL9)
+names(CCMRZone)[names(CCMRZone) == "CCMR_uWS_1"] <- "uWSL90"
+#CCMRZone <- rename(CCMRZone, uWSL90=CCMR_uWS_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uonro"] <- "UonrootTmean"
+#CCMRZone <- rename(CCMRZone, UonrootTmean=CCMR_Uonro)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_1"] <- "UonrootT100"
+#CCMRZone <- rename(CCMRZone, UonrootT100=CCMR_Uon_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_2"] <- "UonrootT99"
+#CCMRZone <- rename(CCMRZone, UonrootT99=CCMR_Uon_2)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Uon_3"] <- "UonrootT90"
+#CCMRZone <- rename(CCMRZone, UonrootT90=CCMR_Uon_3)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubedm"] <- "ubedmean"
+#CCMRZone <- rename(CCMRZone,ubedmean=CCMR_ubedm)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubed1"] <- "ubed100"
+#CCMRZone <- rename(CCMRZone,ubed100=CCMR_ubed1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ubed9"] <- "ubed99"
+#CCMRZone <- rename(CCMRZone,ubed99=CCMR_ubed9)
+names(CCMRZone)[names(CCMRZone) == "CCMR_ube_1"] <- "ubed90"
+#CCMRZone <- rename(CCMRZone,ubed90=CCMR_ube_1)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tpmea"] <- "Tpmean"
+#CCMRZone <- rename(CCMRZone,Tpmean=CCMR_Tpmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp100"] <- "Tp100"
+#CCMRZone <- rename(CCMRZone,Tp100=CCMR_Tp100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp99_"] <- "Tp99"
+#CCMRZone <- rename(CCMRZone,Tp99=CCMR_Tp99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Tp90_"] <- "Tp90"
+#CCMRZone <- rename(CCMRZone,Tp90=CCMR_Tp90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hsmea"] <- "Hsmean"
+#CCMRZone <- rename(CCMRZone,Hsmean=CCMR_Hsmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs100"] <- "Hs100"
+#CCMRZone <- rename(CCMRZone,Hs100=CCMR_Hs100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs99_"] <- "Hs99"
+#CCMRZone <- rename(CCMRZone,Hs99=CCMR_Hs99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs98_"] <- "Hs98"
+#CCMRZone <- rename(CCMRZone,Hs98=CCMR_Hs98_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs97_"] <- "Hs97"
+#CCMRZone <- rename(CCMRZone,Hs97=CCMR_Hs97_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs96_"] <- "Hs96"
+#CCMRZone <- rename(CCMRZone,Hs96=CCMR_Hs96_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs95_"] <- "Hs95"
+#CCMRZone <- rename(CCMRZone,Hs95=CCMR_Hs95_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs90_"] <- "Hs90"
+#CCMRZone <- rename(CCMRZone,Hs90=CCMR_Hs90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs80_"] <- "Hs80"
+#CCMRZone <- rename(CCMRZone,Hs80=CCMR_Hs80_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Hs70_"] <- "Hs70"
+#CCMRZone <- rename(CCMRZone,Hs70=CCMR_Hs70_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Efmea"] <- "Efmean"
+#CCMRZone <- rename(CCMRZone,Efmean=CCMR_Efmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef100"] <- "Ef100"
+#CCMRZone <- rename(CCMRZone,Ef100=CCMR_Ef100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef99_"] <- "Ef99"
+#CCMRZone <- rename(CCMRZone,Ef99=CCMR_Ef99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ef90_"] <- "Ef90"
+#CCMRZone <- rename(CCMRZone,Ef90=CCMR_Ef90_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Edmea"] <- "Edmean"
+#CCMRZone <- rename(CCMRZone,Edmean=CCMR_Edmea)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed100"] <- "Ed100"
+#CCMRZone <- rename(CCMRZone,Ed100=CCMR_Ed100)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed99_"] <- "Ed99"
+#CCMRZone <- rename(CCMRZone,Ed99=CCMR_Ed99_)
+names(CCMRZone)[names(CCMRZone) == "CCMR_Ed90_"] <- "Ed90"
+#CCMRZone <- rename(CCMRZone,Ed90=CCMR_Ed90_)
+
+#CCMRZone <- rename(CCMRZone,SLOPE=GBR_Sentin)
+colnames(CCMRZone)
+
+CCMRselect <- CCMRZone%>%
+  select("Name":"Hsmean")
+rm(CCMR_Th_FD_P)
+rm(CCMRZone)
+
+# BIND ALL
+WGBRselect <- bind_rows(CCMRselect,SGBRselect,FNGBRselect,MKYselect,TSVselect)
+colnames(WGBRselect)
+
+# remove duplicates
+WGBRselect <- WGBRselect %>% distinct(Name, .keep_all = TRUE)
+
+# write to file
+WGBRselect <- write.csv(WGBRselect, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/PeripointArcData/WGBR_pts_LLs_waves.csv")
+
+```
+
+# Join wave data to individual images
+
+```{r}
+
+# create unique names for images
+CN <- CN_GBR_Ben_CT
+CN <- CN %>% dplyr::mutate(Region = as.character("GBR_"))
+
+CN <- CN %>% dplyr::mutate(id = row_number())
+
+CN <- CN %>% unite("ImageID", Region:id, remove = FALSE)
+colnames(CN)
+
+CN <- CN%>%
+  select("Name":"DomByPer15","ImageID")
+rm(CN_GBR_Ben_CT)
+
+# Join to wave parameters
+
+GBR_summary <- inner_join(CN, WGBR_pts_LLs_waves, by = "Name")
+
+omitted <- anti_join(CN, WGBR_pts_LLs_waves, by = "Name")
+
+# write to file
+GBR_summary <- write.csv(GBR_summary, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Output/WGBR_photos_waves.csv")
+
+# Ross reef
+
+```
 

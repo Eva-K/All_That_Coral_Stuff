@@ -184,3 +184,18 @@ GBR_WHole <- write.csv(GBR_Whole, file = "C:/Users/uqekovac/Documents/R/Coding/G
 
 ```
 
+# Bind SGBR
+
+```{r}
+
+# Read in coordinates
+
+# Bind
+Out <- bind_rows(X20190530_RossR_Dive,X20190530_RossR_Snorkel,X20190531_Stucco_Dive,X20190531_Stucco_Snorkel,X20190601_Shower_Dive,X20190601_Shower_Snorkel,X20190603_Broad_Dive,X20190603_Broad_Snorkel)
+
+# Join to CN ouptput
+
+Out_CN <- inner_join(Out, X201906_SGBR)
+
+```
+

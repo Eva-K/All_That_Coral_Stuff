@@ -164,3 +164,23 @@ colnames(GBR_Whole)
 GBR_WHole <- write.csv(GBR_Whole, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Coordinates/2021/ALL/Carolina/GBR_WholeLatsLongs.csv")
 ```
 
+# Add TSV
+
+```{r}
+# Read in files
+
+# Bind Rows
+GBR_Whole <- bind_rows(GBR_LatsLongs_missingTSV, X201905_SGBR_TSV_Dive)
+
+colnames(GBR_Whole)
+
+GBR_Whole <- GBR_Whole%>%
+  select("Name":"Longitude")
+colnames(GBR_Whole)
+
+# write to file
+GBR_WHole <- write.csv(GBR_Whole, file = "C:/Users/uqekovac/Documents/R/Coding/GBRBenthic2020/Coordinates/2021/ALL/Carolina/GBR_WholeLatsLongs.csv")
+
+
+```
+

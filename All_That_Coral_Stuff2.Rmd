@@ -195,7 +195,7 @@ CCMR4 <- CCMR
 # recall
 CCMR <- CCMR4
 
-# calculate 15% dominance
+# calculate  dominance
 CCMR <- CCMR%>%
   rowwise()%>%
   mutate(Dominant = fifelse(((B > M) & (B > P)), "Branching",
@@ -2045,6 +2045,9 @@ WholeGBR <- write.csv(WholeGBR, file = "C:/Users/uqekovac/Documents/R/Coding/GBR
 
 ```
 
+
+
+# ################################# - FAIL - TOO MANY ERRORS IN THE DATA
 # Now try with new ReefCloud Data
 
 ```{r Reefcloud - New - all classes}
